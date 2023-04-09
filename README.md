@@ -5,3 +5,6 @@
 ##### 예시: http://127.0.0.1:5000/louvain/?resolution=0.1&threshold=0.0000001&seed=0
 #### 3. Leidon Algorithm
 ##### 예시: http://127.0.0.1:5000/leidon/
+
+#### Local 환경 flask 구동 명령어
+`flask --app clustering run`
