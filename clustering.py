@@ -1,12 +1,12 @@
 from flask import Flask, request
 from flask_cors import CORS
-import networkx as nx
-from networkx.algorithms import community
-import itertools
 import os
 import pandas as pd
+import networkx as nx
+from networkx.algorithms import community
 import leidenalg
 import igraph as ig
+import itertools
 
 ## Dataframe 직접 가공에 대한 warning 제거
 pd.set_option('mode.chained_assignment', None)
@@ -83,6 +83,40 @@ def runGirvanNewman():
     ## JSON 객체 리턴
     return f'{data}'
   
+  return 'error'
+
+@app.route('/louvain/', methods=['GET'])
+def runLouvain():
+  if request.method == 'GET':    
+    # 반복 횟수를 요청 parameter로 받음
+    resolution = request.args.get('resolution', None)
+    resolution = float(resolution)
+    threshold = request.args.get('threshold', None)
+    threshold = float(threshold)
+    seed = request.args.get('seed', None)
+    seed = int(seed)
+    print(float(resolution))
+    print(float(threshold))
+
+    busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
+    branchData = pd.read_csv(BRANCH_PATH, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+    
+    branch_from = branchData['from']
+    branch_to = branchData['to']
+
+    ## 방향성 멀티 그래프 생성 (= null graph: 0 node, 0 edge)
+    G = nx.MultiDiGraph()
+    
+    ## Node, Edge 추가 (아무 연결도 없는 Node는 없다고 가정 -> Branch data 기준으로 add edge)
+    for e in range(1, len(branchData)):
+      G.add_edge(branch_from[e], branch_to[e], edge=e)
+    
+    res = community.louvain_communities(G, resolution=resolution, threshold=threshold, seed=seed)
+    # print(res)
+    print(len(res))
+    
+    return f''
+    
   return 'error'
 
 # function to obtain the communities calculated by leiden algorithm
