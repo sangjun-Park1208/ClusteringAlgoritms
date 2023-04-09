@@ -79,7 +79,7 @@ def Add_Outer_edges(Community_all, num):
             outter_edges = outter_edges + [new_edge]
     return outter_edges
 
-@app.route('/')
+@app.route('/girvan-newman-test/')
 def run_GirvanNewmanAlgorithm():
     # 8명, 10명, 12명 의 3팀 생성, 총 30명
     G = nx.Graph()
