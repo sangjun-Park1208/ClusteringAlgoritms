@@ -6,5 +6,9 @@
 #### 3. Leidon Algorithm
 ##### 예시: http://127.0.0.1:5000/leidon/
 
-#### Local 환경 flask 구동 명령어
+#### - Local 환경 flask 구동 명령어
 `flask --app clustering run`
+#### - Data 추가
+`/data/bus-1062` 및 `/data/branch-1062` 추가
+#### - 모듈 설치
+`npm i`
