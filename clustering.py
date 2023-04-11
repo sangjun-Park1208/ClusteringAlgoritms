@@ -121,42 +121,42 @@ def runLouvain():
 
 # function to obtain the communities calculated by leiden algorithm
 def get_leiden_communities(graph, random_state=0):
-    if isinstance(graph, (nx.Graph, nx.DiGraph)):
-        graph = ig.Graph.from_networkx(graph)
-    return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition, seed=random_state))
+  if isinstance(graph, (nx.Graph, nx.DiGraph)):
+      graph = ig.Graph.from_networkx(graph)
+  return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition, seed=random_state))
   
 @app.route('/leidon/', methods=['GET'])
 def runLeidon():
-    branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
-    bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
-    bus = bus.drop('area', axis=1)
-    bus['cluster'] = -1
+  branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
+  bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
+  bus = bus.drop('area', axis=1)
+  bus['cluster'] = -1
+
+  # 멀티 그래프 객체 생성
+  mg = nx.MultiGraph()
   
-    # 멀티 그래프 객체 생성
-    mg = nx.MultiGraph()
-    
-    # node 추가
-    for i in range(len(bus['id'])):
-      mg.add_node(bus['id'][i])
+  # node 추가
+  for i in range(len(bus['id'])):
+    mg.add_node(bus['id'][i])
 
-    # edge 추가
-    for i in range(len(branch['from'])):
-      mg.add_edges_from([(branch['from'][i], branch['to'][i])])
-    
-    leiden_communities = get_leiden_communities(mg)
-    for i, row in enumerate (leiden_communities):
-      print("cluster", i)
-      print(row)
-      bus['cluster'][row] = i
+  # edge 추가
+  for i in range(len(branch['from'])):
+    mg.add_edges_from([(branch['from'][i], branch['to'][i])])
+  
+  leiden_communities = get_leiden_communities(mg)
+  for i, row in enumerate (leiden_communities):
+    print("cluster", i)
+    print(row)
+    bus['cluster'][row] = i
 
 
-    bus_dict = bus.to_dict('records')
-    branch_dict = branch.to_dict('records')
-    data = {
-      'bus': bus_dict,
-      'branch': branch_dict
-    }
-    return f'{data}'
+  bus_dict = bus.to_dict('records')
+  branch_dict = branch.to_dict('records')
+  data = {
+    'bus': bus_dict,
+    'branch': branch_dict
+  }
+  return f'{data}'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
