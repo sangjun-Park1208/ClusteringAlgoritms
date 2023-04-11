@@ -9,6 +9,4 @@
 #### - Local 환경 flask 구동 명령어
 `flask --app clustering run`
 #### - Data 추가
-`/data/bus-1062` 및 `/data/branch-1062` 추가
-#### - 모듈 설치
-`npm i`
+`/data/bus-1062.csv` 및 `/data/branch-1062.csv` 추가
