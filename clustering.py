@@ -11,7 +11,7 @@ import itertools
 ## Dataframe 직접 가공에 대한 warning 제거
 pd.set_option('mode.chained_assignment', None)
 
-## Data loading을 위한 변수
+## Data loading을 위한 변수: Orthogonal Layout
 ROOT = os.getcwd()
 DATA = "/data"
 BUS = "/bus-1062"
@@ -20,6 +20,17 @@ CSV = ".csv"
 JSON = ".json"
 BUS_PATH = ROOT + DATA + BUS + CSV
 BRANCH_PATH = ROOT + DATA + BRANCH + CSV
+
+## Data loading을 위한 변수: Patient flow
+PATIENT_FLOW_PATH1_TYPE1 = ROOT + "/data/p1_type1.csv"
+PATIENT_FLOW_PATH1_TYPE4 = ROOT + "/data/p1_type4.csv"
+PATIENT_FLOW_PATH2_TYPE1 = ROOT + "/data/p2_type1.csv"
+PATIENT_FLOW_PATH2_TYPE4 = ROOT + "/data/p2_type4.csv"
+PATIENT_FLOW_PATH3_TYPE1 = ROOT + "/data/p3_type1.csv"
+PATIENT_FLOW_PATH3_TYPE4 = ROOT + "/data/p3_type4.csv"
+PATIENT_REGION1 = ROOT + "/data/p1_region.csv"
+PATIENT_REGION2 = ROOT + "/data/p2_region.csv"
+PATIENT_REGION3 = ROOT + "/data/p3_region.csv"
 
 app = Flask(__name__)
 CORS(app)
@@ -125,8 +136,8 @@ def get_leiden_communities(graph, random_state=0):
       graph = ig.Graph.from_networkx(graph)
   return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition, seed=random_state))
   
-@app.route('/leidon/', methods=['GET'])
-def runLeidon():
+@app.route('/leiden/', methods=['GET'])
+def runLeiden():
   branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
   bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
   bus = bus.drop('area', axis=1)
@@ -157,6 +168,66 @@ def runLeidon():
     'branch': branch_dict
   }
   return f'{data}'
+
+@app.route('/leiden/pf/', methods=['GET'])
+def runLeidenPF():
+  ## url param: 
+  ### /leiden/pf/?p=1
+  ### /leiden/pf/?p=2 
+  ### /leiden/pf/?p=3
+  path_type = request.args.get('p', '')
+  if int(path_type) == 1:
+    patient_data1 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE1)
+    patient_data4 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE4)
+    patient_region_data = pd.read_csv(PATIENT_REGION1)
+  elif int(path_type) == 2:
+    patient_data1 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE1)
+    patient_data4 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE4)
+    patient_region_data = pd.read_csv(PATIENT_REGION2)
+  elif int(path_type) == 3:
+    patient_data1 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE1)
+    patient_data4 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE4)
+    patient_region_data = pd.read_csv(PATIENT_REGION3)
+  else:
+    return '잘못된 parameter 입니다. p: 1~3'
+  
+  ## type4 dataframe column명 수정
+  patient_data4.columns = ['h1', 'count', 'u1']
+  patient_data4['h2_a'] = patient_data4['h1']
+  
+  ## type1 & type4: concat (세로 방향)
+  patient_data = pd.concat([patient_data1, patient_data4], axis=0)
+  
+  ## 불필요 u1 column 제거 & cluster column 추가(-1 초기화)
+  patient_data = patient_data.drop('u1', axis=1)
+  patient_data["cluster"] = -1
+  
+  ## column 명 변경
+  patient_data.columns = ['from', 'to', 'weight', 'cluster']
+  patient_data["idx"] = 0
+  for i in range(1, len(patient_data['idx'])+1):
+    patient_data['idx'][i-1] = i
+  patient_data = patient_data[['idx', 'from', 'to', 'weight', 'cluster']]
+  
+  # 멀티 그래프 객체 생성
+  mg = nx.MultiGraph()
+  
+  # node 추가
+  print(patient_region_data)
+  for i in range(len(patient_region_data['id'])):
+    mg.add_node(patient_region_data['id'][i])
+  
+  for i in range(len(patient_data['from'])):
+    mg.add_edges_from([(patient_data['from'][i], patient_data['to'][i])])
+  
+  leiden_communities = get_leiden_communities(mg)
+  # for i, row in enumerate (leiden_communities):
+  #   print("cluster", i+1)
+  #   print(row)
+  #   patient_data['cluster'][row] = i+1
+  
+  print(patient_data)
+  return f'{patient_data}'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
