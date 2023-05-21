@@ -7,6 +7,10 @@
 ##### 예시: http://SERVER_BASE_URL:PORTNUM/leidon/
 
 #### - Local 환경 flask 구동 명령어
-`flask --app clustering run`
+`flask --app clustering run` or `python clustering`
 #### - Data 추가
-`/data/bus-1062.csv` 및 `/data/branch-1062.csv` 추가
+`/data/bus-1062.csv`, `/data/branch-1062.csv` 추가 (Orthogonal layout) <br/><br/>
+`p1_region.csv`, `p2_region.csv`, `p3_region.csv`, <br/>
+`p1_type1.csv`, `p1_type4.csv`, <br/>
+`p2_type1.csv`, `p2_type4.csv`, <br/>
+`p3_type1.csv`, `p3_type4.csv` 추가 (Patient Flow)
