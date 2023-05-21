@@ -7,6 +7,7 @@ from networkx.algorithms import community
 import leidenalg
 import igraph as ig
 import itertools
+import json
 
 ## Dataframe 직접 가공에 대한 warning 제거
 pd.set_option('mode.chained_assignment', None)
@@ -38,7 +39,7 @@ CORS(app)
 @app.route('/girvan-newman/', methods=['GET'])
 def runGirvanNewman():
   if request.method == 'GET':
-    # 반복 횟수를 요청 parameter로 받음
+    ### (ex) /girvan-newman/?iter=8
     iterNum = request.args.get('iter', '')
 
     busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
@@ -83,16 +84,16 @@ def runGirvanNewman():
       print(row)
       busData['cluster'][row] = i
     
-    ## JSON 객체로 변환
+    ## JSON 객체 리턴
     bus_dict = busData.to_dict('records')
     branch_dict = branchData.to_dict('records')
     data = {
       'bus': bus_dict,
       'branch': branch_dict
     }
-
-    ## JSON 객체 리턴
-    return f'{data}'
+    
+    json_result = json.dumps(data)
+    return f'{json_result}'
   
   return 'error'
 
@@ -123,10 +124,10 @@ def runLouvain():
       G.add_edge(branch_from[e], branch_to[e], edge=e)
     
     res = community.louvain_communities(G, resolution=resolution, threshold=threshold, seed=seed)
-    # print(res)
+    print(res)
     print(len(res))
     
-    return f''
+    return f'{res}'
     
   return 'error'
 
@@ -155,19 +156,21 @@ def runLeiden():
     mg.add_edges_from([(branch['from'][i], branch['to'][i])])
   
   leiden_communities = get_leiden_communities(mg)
+  print(leiden_communities)
   for i, row in enumerate (leiden_communities):
     print("cluster", i)
     print(row)
     bus['cluster'][row] = i
 
-
+  print('result:', bus, sep='\n')
   bus_dict = bus.to_dict('records')
   branch_dict = branch.to_dict('records')
   data = {
     'bus': bus_dict,
     'branch': branch_dict
   }
-  return f'{data}'
+  json_result = json.dumps(data)
+  return f'{json_result}'
 
 @app.route('/leiden/pf/', methods=['GET'])
 def runLeidenPF():
@@ -196,7 +199,7 @@ def runLeidenPF():
   patient_data4['h2_a'] = patient_data4['h1']
   
   ## type1 & type4: concat (세로 방향)
-  patient_data = pd.concat([patient_data1, patient_data4], axis=0)
+  patient_data = pd.concat([patient_data1, patient_data4], axis=0, ignore_index=True)
   
   ## 불필요 u1 column 제거 & cluster column 추가(-1 초기화)
   patient_data = patient_data.drop('u1', axis=1)
@@ -204,30 +207,35 @@ def runLeidenPF():
   
   ## column 명 변경
   patient_data.columns = ['from', 'to', 'weight', 'cluster']
-  patient_data["idx"] = 0
-  for i in range(1, len(patient_data['idx'])+1):
-    patient_data['idx'][i-1] = i
-  patient_data = patient_data[['idx', 'from', 'to', 'weight', 'cluster']]
+  patient_data = patient_data[['from', 'to', 'weight', 'cluster']]
+  patient_data = patient_data.sort_values(['from', 'to'])
+  
+  print('patient data: ', patient_data, sep='\n')
+  patient_data.to_csv('C:/Users/user/Desktop/ClusteringAlgorithms/data/before.csv', sep=',', index=None)
   
   # 멀티 그래프 객체 생성
   mg = nx.MultiGraph()
   
   # node 추가
-  print(patient_region_data)
-  for i in range(len(patient_region_data['id'])):
-    mg.add_node(patient_region_data['id'][i])
+  l_region = patient_region_data['id'].to_list()
+  for i in l_region:
+    mg.add_node(i)
   
-  for i in range(len(patient_data['from'])):
-    mg.add_edges_from([(patient_data['from'][i], patient_data['to'][i])])
+  # edge 추가
+  for i in range(len(patient_data.index)):
+    mg.add_weighted_edges_from([(patient_data.iloc[i]['from'], patient_data.iloc[i]['to'], patient_data.iloc[i]['weight'])])
   
   leiden_communities = get_leiden_communities(mg)
-  # for i, row in enumerate (leiden_communities):
-  #   print("cluster", i+1)
-  #   print(row)
-  #   patient_data['cluster'][row] = i+1
   
-  print(patient_data)
-  return f'{patient_data}'
+  patient_result = []
+  for i, row in enumerate (leiden_communities):
+    print('cluster', i)
+    print(row)
+    patient_result.append({'cluster': i, 'nodes': row})
+    
+  patient_result = {'result': patient_result}
+  json_result = json.dumps(patient_result)
+  return f'{json_result}'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
