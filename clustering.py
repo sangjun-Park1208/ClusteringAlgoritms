@@ -97,6 +97,76 @@ def runGirvanNewman():
   
   return 'error'
 
+@app.route('/girvan-newman/pf/', methods=['GET'])
+def runGirvanNewmanPF():
+  if request.method == 'GET':
+    ### (ex) /girvan-newman/pf/?p=1&iter=8
+    ### (ex) /girvan-newman/pf/?p=2&iter=8
+    ### (ex) /girvan-newman/pf/?p=3&iter=8
+    path_type = request.args.get('p', '')
+    if int(path_type) == 1:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION1)
+    elif int(path_type) == 2:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION2)
+    elif int(path_type) == 3:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION3)
+    else:
+      return '잘못된 parameter 입니다. p: 1~3'
+    
+    iterNum = request.args.get('iter', '')
+    
+    ## type4 dataframe column명 수정
+    patient_data4.columns = ['h1', 'count', 'u1']
+    patient_data4['h2_a'] = patient_data4['h1']
+    
+    ## type1 & type4: concat (세로 방향)
+    patient_data = pd.concat([patient_data1, patient_data4], axis=0, ignore_index=True)
+    
+    ## 불필요 u1 column 제거 & cluster column 추가(-1 초기화)
+    patient_data = patient_data.drop('u1', axis=1)
+    patient_data["cluster"] = -1
+
+    ## column 명 변경
+    patient_data.columns = ['from', 'to', 'weight', 'cluster']
+    patient_data = patient_data[['from', 'to', 'weight', 'cluster']]
+    patient_data = patient_data.sort_values(['from', 'to'])
+    
+    # 멀티 그래프 객체 생성
+    mg = nx.MultiGraph()
+    
+    # node 추가
+    l_region = patient_region_data['id'].to_list()
+    for i in l_region:
+      mg.add_node(i)
+    
+    # edge 추가
+    for i in range(len(patient_data.index)):
+      mg.add_weighted_edges_from([(patient_data.iloc[i]['from'], patient_data.iloc[i]['to'], patient_data.iloc[i]['weight'])])
+    
+    comp = community.centrality.girvan_newman(mg)
+    for communities in itertools.islice(comp, int(iterNum)):
+      girvan_newman_result = list(sorted(c) for c in communities)
+    
+    print(girvan_newman_result)
+    patient_result = []
+    for i, row in enumerate(girvan_newman_result):
+      print('cluster', i)
+      print(list(row))
+      patient_result.append({'cluster': i, 'nodes': list(row)})
+      
+    patient_result = {'result': patient_result}
+    # print(patient_result)
+    # json_result = json.dumps(patient_result)
+    return f'{patient_result}'
+  
+  return 'error'
+
 @app.route('/louvain/', methods=['GET'])
 def runLouvain():
   if request.method == 'GET':    
@@ -150,6 +220,77 @@ def runLouvain():
     return f'{json_result}'
     
   return 'error'
+
+@app.route('/louvain/pf/', methods=['GET'])
+def runLouvainPF():
+  if request.method == 'GET':    
+    ## url param: 
+    ### /louvain/pf/?p=1&resolution=0.1&threshold=0.0000001&seed=0
+    ### /louvain/pf/?p=2&resolution=0.1&threshold=0.0000001&seed=0
+    ### /louvain/pf/?p=3&resolution=0.1&threshold=0.0000001&seed=0
+    path_type = request.args.get('p', '')
+    if int(path_type) == 1:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH1_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION1)
+    elif int(path_type) == 2:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH2_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION2)
+    elif int(path_type) == 3:
+      patient_data1 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE1)
+      patient_data4 = pd.read_csv(PATIENT_FLOW_PATH3_TYPE4)
+      patient_region_data = pd.read_csv(PATIENT_REGION3)
+    else:
+      return '잘못된 parameter 입니다. p: 1~3'
+    
+    resolution = float(request.args.get('resolution', None))
+    threshold = float(request.args.get('threshold', None))
+    seed = int(request.args.get('seed', None))
+    
+    ## type4 dataframe column명 수정
+    patient_data4.columns = ['h1', 'count', 'u1']
+    patient_data4['h2_a'] = patient_data4['h1']
+    
+    ## type1 & type4: concat (세로 방향)
+    patient_data = pd.concat([patient_data1, patient_data4], axis=0, ignore_index=True)
+    
+    ## 불필요 u1 column 제거 & cluster column 추가(-1 초기화)
+    patient_data = patient_data.drop('u1', axis=1)
+    patient_data["cluster"] = -1
+
+    ## column 명 변경
+    patient_data.columns = ['from', 'to', 'weight', 'cluster']
+    patient_data = patient_data[['from', 'to', 'weight', 'cluster']]
+    patient_data = patient_data.sort_values(['from', 'to'])
+
+    # 멀티 그래프 객체 생성
+    mg = nx.MultiGraph()
+    
+    # node 추가
+    l_region = patient_region_data['id'].to_list()
+    for i in l_region:
+      mg.add_node(i)
+    
+    # edge 추가
+    for i in range(len(patient_data.index)):
+      mg.add_weighted_edges_from([(patient_data.iloc[i]['from'], patient_data.iloc[i]['to'], patient_data.iloc[i]['weight'])])
+    
+    # Louvain 알고리즘 수행
+    louvain_result = community.louvain_communities(mg, resolution=resolution, threshold=threshold, seed=seed)
+
+    patient_result = []
+    for i, row in enumerate(louvain_result):
+      print('cluster', i)
+      print(list(row))
+      patient_result.append({'cluster': i, 'nodes': list(row)})
+      
+    patient_result = {'result': patient_result}
+    print(patient_result)
+    json_result = json.dumps(patient_result)
+    return f'{json_result}'
+  return 'error'
+
 
 # function to obtain the communities calculated by leiden algorithm
 def get_leiden_communities(graph, random_state=0):
@@ -229,9 +370,6 @@ def runLeidenPF():
   patient_data.columns = ['from', 'to', 'weight', 'cluster']
   patient_data = patient_data[['from', 'to', 'weight', 'cluster']]
   patient_data = patient_data.sort_values(['from', 'to'])
-  
-  print('patient data: ', patient_data, sep='\n')
-  patient_data.to_csv('C:/Users/user/Desktop/ClusteringAlgorithms/data/before.csv', sep=',', index=None)
   
   # 멀티 그래프 객체 생성
   mg = nx.MultiGraph()
