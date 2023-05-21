@@ -100,15 +100,13 @@ def runGirvanNewman():
 @app.route('/louvain/', methods=['GET'])
 def runLouvain():
   if request.method == 'GET':    
-    # 반복 횟수를 요청 parameter로 받음
+    # (ex) /louvain/?resolution=0.1&threshold=0.0000001&seed=0
     resolution = request.args.get('resolution', None)
     resolution = float(resolution)
     threshold = request.args.get('threshold', None)
     threshold = float(threshold)
     seed = request.args.get('seed', None)
     seed = int(seed)
-    print(float(resolution))
-    print(float(threshold))
 
     busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
     branchData = pd.read_csv(BRANCH_PATH, names=['from', 'to', 'r', 'x', 'b', 'tap'])
@@ -122,12 +120,34 @@ def runLouvain():
     ## Node, Edge 추가 (아무 연결도 없는 Node는 없다고 가정 -> Branch data 기준으로 add edge)
     for e in range(1, len(branchData)):
       G.add_edge(branch_from[e], branch_to[e], edge=e)
+      
+    ## Cluster 추가 & Dataframe으로 구성
+    busData = busData.drop([0], axis=0)
+    busData = busData.drop('area', axis=1)
+    busData['cluster'] = -1
+    branchData = branchData.drop([0], axis=0)
     
-    res = community.louvain_communities(G, resolution=resolution, threshold=threshold, seed=seed)
-    print(res)
-    print(len(res))
+    louvain_result = community.louvain_communities(G, resolution=resolution, threshold=threshold, seed=seed)
+    for i, row in enumerate(louvain_result):
+      print("cluster", i, end=" ")
+      row = list(map(int, row))
+      row.sort()
+      print(row)
+      busData['cluster'][row] = i
     
-    return f'{res}'
+    ## JSON 객체 리턴
+    bus_dict = busData.to_dict('records')
+    branch_dict = branchData.to_dict('records')
+    data = {
+      'bus': bus_dict,
+      'branch': branch_dict
+    }
+    
+    json_result = json.dumps(data)
+    print(louvain_result)
+    # print(len(louvain_result))
+    
+    return f'{json_result}'
     
   return 'error'
 
