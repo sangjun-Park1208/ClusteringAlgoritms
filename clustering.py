@@ -3,7 +3,9 @@ from flask_cors import CORS
 import os
 import pandas as pd
 import networkx as nx
+from networkx.algorithms.community.centrality import girvan_newman
 from networkx.algorithms import community
+from networkx import edge_betweenness_centrality as betweenness
 import leidenalg
 import igraph as ig
 import itertools
@@ -36,11 +38,15 @@ PATIENT_REGION3 = ROOT + "/data/p3_region.csv"
 app = Flask(__name__)
 CORS(app)
 
+def most_central_edge(G):
+  centrality = betweenness(G, weight="weight")
+  return max(centrality, key=centrality.get)
+
 @app.route('/girvan-newman/', methods=['GET'])
 def runGirvanNewman():
   if request.method == 'GET':
     ### (ex) /girvan-newman/?iter=8
-    iterNum = request.args.get('iter', '')
+    iterNum = int(request.args.get('iter', ''))
 
     busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
     branchData = pd.read_csv(BRANCH_PATH, names=['from', 'to', 'r', 'x', 'b', 'tap'])
@@ -59,17 +65,9 @@ def runGirvanNewman():
     print(f'Node Count: {G.number_of_nodes()}', sep=" ")
     print(f'Edge Count: {G.number_of_edges()}', sep=" ")
     
-    ## Girvan-newman 알고리즘 적용
-    comp = community.centrality.girvan_newman(G)
-    for communities in itertools.islice(comp, int(iterNum)):
+    comp = girvan_newman(G)
+    for communities in itertools.islice(comp, iterNum):
       girvan_newman_result = tuple(sorted(c) for c in communities)
-
-    ## 각 Community의 노드 개수 및 결과 출력
-    k = 1
-    for i in girvan_newman_result:
-      print(f"Community {k}: {len(i)}", sep=" ")
-      k += 1
-    print(f"Community Count: {len(girvan_newman_result)}", sep=" ")
     
     ## Cluster 추가 & Dataframe으로 구성
     busData = busData.drop([0], axis=0)
@@ -78,11 +76,18 @@ def runGirvanNewman():
     branchData = branchData.drop([0], axis=0)
     
     for i, row in enumerate(girvan_newman_result):
-      print("cluster", i, end=" ")
+      print("cluster", i)
       row = list(map(int, row))
       row.sort()
       print(row)
       busData['cluster'][row] = i
+    
+    ## 각 Community의 노드 개수 및 결과 출력
+    k = 1
+    for i in girvan_newman_result:
+      print(f"Community {k}: {len(i)}", sep=" ")
+      k += 1
+    print(f"Community Count: {len(girvan_newman_result)}", sep=" ")
     
     ## JSON 객체 리턴
     bus_dict = busData.to_dict('records')
@@ -93,6 +98,7 @@ def runGirvanNewman():
     }
     
     json_result = json.dumps(data)
+    print(json_result)
     return f'{json_result}'
   
   return 'error'
@@ -119,7 +125,7 @@ def runGirvanNewmanPF():
     else:
       return '잘못된 parameter 입니다. p: 1~3'
     
-    iterNum = request.args.get('iter', '')
+    iterNum = int(request.args.get('iter', ''))
     
     ## type4 dataframe column명 수정
     patient_data4.columns = ['h1', 'count', 'u1']
@@ -149,21 +155,19 @@ def runGirvanNewmanPF():
     for i in range(len(patient_data.index)):
       mg.add_weighted_edges_from([(patient_data.iloc[i]['from'], patient_data.iloc[i]['to'], patient_data.iloc[i]['weight'])])
     
-    comp = community.centrality.girvan_newman(mg)
-    for communities in itertools.islice(comp, int(iterNum)):
-      girvan_newman_result = list(sorted(c) for c in communities)
+    comp = girvan_newman(mg)
+    for communities in itertools.islice(comp, iterNum):
+      girvan_newman_result = tuple(sorted(c) for c in communities)
     
-    print(girvan_newman_result)
     patient_result = []
     for i, row in enumerate(girvan_newman_result):
       print('cluster', i)
       print(list(row))
-      patient_result.append({'cluster': i, 'nodes': list(row)})
+      patient_result.append({"cluster": i, "nodes": list(row)})
       
-    patient_result = {'result': patient_result}
-    # print(patient_result)
-    # json_result = json.dumps(patient_result)
-    return f'{patient_result}'
+    patient_result = {"result": patient_result}
+    json_result = json.dumps(patient_result)
+    return f'{json_result}'
   
   return 'error'
 
