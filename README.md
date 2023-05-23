@@ -7,8 +7,8 @@
 ##### 예시: http://SERVER_BASE_URL:PORTNUM/leiden/
 
 #### - Local 환경 flask 구동 명령어
-`flask --app clustering run` or `python ./clustering` <br/>
-(python3인 경우 `python3 ./clustering`)
+`flask --app clustering run` or `python ./clustering.py` <br/>
+(python3인 경우 `python3 ./clustering.py`)
 
 #### - Data 추가
 `/data/bus-1062.csv`, `/data/branch-1062.csv` 추가 (Orthogonal layout) <br/><br/>
