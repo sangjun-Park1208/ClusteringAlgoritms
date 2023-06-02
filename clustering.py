@@ -76,8 +76,16 @@ def runGirvanNewman():
       busData = pd.read_csv(ORTHOGONAL_BUS_14, names=['id', 'area', 'degree'])
       branchData = pd.read_csv(ORTHOGONAL_BRANCH_14, names=['from', 'to'])
     else:
-      return f'data must in [1062, 300, 118, 57, 30, 14]'
+      return f'Data must in [1062, 300, 118, 57, 30, 14]'
     
+    busData = busData.drop([0], axis=0)
+    busData = busData.drop('area', axis=1)
+    busData['cluster'] = -1
+    busData = busData.astype({'id': 'int'})
+
+    branchData = branchData.drop([0], axis=0)
+    branchData = branchData.astype({'from': 'int'})
+    branchData = branchData.astype({'to': 'int'})
     branch_from = branchData['from']
     branch_to = branchData['to']
     
@@ -86,13 +94,12 @@ def runGirvanNewman():
 
     ## Node 추가
     id_list = busData['id'].to_list()
-    id_list.remove('id')
     print('id_list', id_list)
     for i in id_list:
       G.add_node(i)
     
     ## Edge 추가
-    for i in range(1, len(branchData.index)):
+    for i in range(1, len(branchData.index)+1):
       G.add_edge(branch_from[i], branch_to[i])
     
     ## Debug: Node & Edge 개수
@@ -103,13 +110,6 @@ def runGirvanNewman():
     for communities in itertools.islice(comp, iterNum):
       girvan_newman_result = tuple(sorted(c) for c in communities)
     
-    ## Cluster 추가 & Dataframe으로 구성
-    busData = busData.drop([0], axis=0)
-    busData = busData.drop('area', axis=1)
-    busData['cluster'] = -1
-    branchData = branchData.drop([0], axis=0)
-    busData = busData.astype({'id': 'int'})
-    
     for i, row in enumerate(girvan_newman_result):
       print("cluster", i)
       row = list(map(int, row))
@@ -117,7 +117,6 @@ def runGirvanNewman():
       print(row)
       for j in row:
         busData.loc[busData['id'] == j, 'cluster'] = i
-        break
     
     ## Debug: 각 Community의 노드 개수 및 결과 출력
     k = 1
@@ -209,32 +208,61 @@ def runGirvanNewmanPF():
 @app.route('/louvain/', methods=['GET'])
 def runLouvain():
   if request.method == 'GET':    
-    # (ex) /louvain/?resolution=0.1&threshold=0.0000001&seed=0
-    resolution = request.args.get('resolution', None)
-    resolution = float(resolution)
-    threshold = request.args.get('threshold', None)
-    threshold = float(threshold)
-    seed = request.args.get('seed', None)
-    seed = int(seed)
-
-    busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
-    branchData = pd.read_csv(BRANCH_PATH, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+    # (ex) /louvain/?data=300&resolution=0.1&threshold=0.0000001&seed=0
+    dataNum = int(request.args.get('data', ''))
+    resolution = float(request.args.get('resolution', None))
+    threshold = float(request.args.get('threshold', None))
+    seed = int(request.args.get('seed', None))
+    
+    if dataNum == 1062:
+      busData = pd.read_csv(ORTHOGONAL_BUS_1062, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_1062, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+    elif dataNum == 300:
+      busData = pd.read_csv(ORTHOGONAL_BUS_300, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_300, names=['from', 'to'])
+    elif dataNum == 118:
+      busData = pd.read_csv(ORTHOGONAL_BUS_118, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_118, names=['from', 'to'])
+    elif dataNum == 57:
+      busData = pd.read_csv(ORTHOGONAL_BUS_57, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_57, names=['from', 'to'])
+    elif dataNum == 30:
+      busData = pd.read_csv(ORTHOGONAL_BUS_30, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_30, names=['from', 'to'])
+    elif dataNum == 14:
+      busData = pd.read_csv(ORTHOGONAL_BUS_14, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_14, names=['from', 'to'])
+    else:
+      return f'Data must in [1062, 300, 118, 57, 30, 14]'
     
     branch_from = branchData['from']
     branch_to = branchData['to']
 
     ## 방향성 멀티 그래프 생성 (= null graph: 0 node, 0 edge)
     G = nx.MultiDiGraph()
+
+    ## Node 추가
+    id_list = busData['id'].to_list()
+    id_list.remove('id')
+    print('id_list', id_list)
+    for i in id_list:
+      G.add_node(i)    
     
-    ## Node, Edge 추가 (아무 연결도 없는 Node는 없다고 가정 -> Branch data 기준으로 add edge)
-    for e in range(1, len(branchData)):
-      G.add_edge(branch_from[e], branch_to[e], edge=e)
+    ## Edge 추가
+    for i in range(1, len(branchData.index)):
+      G.add_edge(branch_from[i], branch_to[i])
+      
+      
+    # ## Node, Edge 추가 (아무 연결도 없는 Node는 없다고 가정 -> Branch data 기준으로 add edge)
+    # for e in range(1, len(branchData)):
+    #   G.add_edge(branch_from[e], branch_to[e], edge=e)
       
     ## Cluster 추가 & Dataframe으로 구성
     busData = busData.drop([0], axis=0)
     busData = busData.drop('area', axis=1)
     busData['cluster'] = -1
     branchData = branchData.drop([0], axis=0)
+    busData = busData.astype({'id': 'int'})
     
     louvain_result = community.louvain_communities(G, resolution=resolution, threshold=threshold, seed=seed)
     for i, row in enumerate(louvain_result):
@@ -242,7 +270,10 @@ def runLouvain():
       row = list(map(int, row))
       row.sort()
       print(row)
-      busData['cluster'][row] = i
+      # busData['cluster'][row] = i
+      for j in row:
+        busData.loc[busData['id'] == j, 'cluster'] = i
+
     
     ## JSON 객체 리턴
     bus_dict = busData.to_dict('records')
@@ -253,7 +284,7 @@ def runLouvain():
     }
     
     json_result = json.dumps(data)
-    print(louvain_result)
+    # print(louvain_result)
     # print(len(louvain_result))
     
     return f'{json_result}'
@@ -339,32 +370,73 @@ def get_leiden_communities(graph, random_state=0):
   
 @app.route('/leiden/', methods=['GET'])
 def runLeiden():
-  branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
-  bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
-  bus = bus.drop('area', axis=1)
-  bus['cluster'] = -1
-
+  ### (ex) /leiden/?data=1062
+  ### (ex) /leiden/?data=300
+  dataNum = int(request.args.get('data', ''))
+  print('dataNum: ', dataNum)
+  # branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
+  # bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
+  if dataNum == 1062:
+    busData = pd.read_csv(ORTHOGONAL_BUS_1062, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_1062, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+  elif dataNum == 300:
+    busData = pd.read_csv(ORTHOGONAL_BUS_300, names=['id', 'area', 'degree'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_300, names=['from', 'to'])
+  elif dataNum == 118:
+    busData = pd.read_csv(ORTHOGONAL_BUS_118, names=['id', 'area', 'degree'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_118, names=['from', 'to'])
+  elif dataNum == 57:
+    busData = pd.read_csv(ORTHOGONAL_BUS_57, names=['id', 'area', 'degree'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_57, names=['from', 'to'])
+  elif dataNum == 30:
+    busData = pd.read_csv(ORTHOGONAL_BUS_30, names=['id', 'area', 'degree'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_30, names=['from', 'to'])
+  elif dataNum == 14:
+    busData = pd.read_csv(ORTHOGONAL_BUS_14, names=['id', 'area', 'degree'])
+    branchData = pd.read_csv(ORTHOGONAL_BRANCH_14, names=['from', 'to'])
+  else:
+    return f'Data must in [1062, 300, 118, 57, 30, 14]'
+  
+  busData = busData.drop([0], axis=0)
+  busData = busData.drop('area', axis=1)
+  busData['cluster'] = -1
+  busData = busData.astype({'id': 'int'})
+  print('busData', busData, sep='\n')
+  
+  branchData = branchData.drop([0], axis=0)
+  branchData = branchData.astype({'from': 'int'})
+  branchData = branchData.astype({'to': 'int'})
+  branch_from = branchData['from']
+  branch_to = branchData['to']
+  
   # 멀티 그래프 객체 생성
-  mg = nx.MultiGraph()
+  G = nx.MultiGraph()
   
-  # node 추가
-  for i in range(len(bus['id'])):
-    mg.add_node(bus['id'][i])
+  ## Node 추가
+  id_list = busData['id'].to_list()
+  print('id_list', id_list, sep='\n')
+  for i in id_list:
+    G.add_node(i)
+  print(G.nodes)
+  
+  ## Edge 추가
+  for i in range(1, len(branchData.index)+1):
+    G.add_edge(branch_from[i], branch_to[i])
 
-  # edge 추가
-  for i in range(len(branch['from'])):
-    mg.add_edges_from([(branch['from'][i], branch['to'][i])])
-  
-  leiden_communities = get_leiden_communities(mg)
+  # print('before:', busData, sep='\n')
+  leiden_communities = get_leiden_communities(G)
   print(leiden_communities)
   for i, row in enumerate (leiden_communities):
     print("cluster", i)
+    row = list(map(int, row))
+    row.sort()
     print(row)
-    bus['cluster'][row] = i
+    for j in row:
+      busData.loc[busData['id'] == j+1, 'cluster'] = i
 
-  print('result:', bus, sep='\n')
-  bus_dict = bus.to_dict('records')
-  branch_dict = branch.to_dict('records')
+  print('after:', busData, sep='\n')
+  bus_dict = busData.to_dict('records')
+  branch_dict = branchData.to_dict('records')
   data = {
     'bus': bus_dict,
     'branch': branch_dict
