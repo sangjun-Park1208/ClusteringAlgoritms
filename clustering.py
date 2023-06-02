@@ -14,15 +14,21 @@ import json
 ## Dataframe 직접 가공에 대한 warning 제거
 pd.set_option('mode.chained_assignment', None)
 
-## Data loading을 위한 변수: Orthogonal Layout
 ROOT = os.getcwd()
-DATA = "/data"
-BUS = "/bus-1062"
-BRANCH = "/branch-1062"
-CSV = ".csv"
-JSON = ".json"
-BUS_PATH = ROOT + DATA + BUS + CSV
-BRANCH_PATH = ROOT + DATA + BRANCH + CSV
+## Data loading을 위한 변수: Orthogonal Layout
+ORTHOGONAL_BUS_1062 = ROOT + "/data/bus-1062.csv"
+ORTHOGONAL_BUS_300 = ROOT + "/data/bus-300.csv"
+ORTHOGONAL_BUS_118 = ROOT + "/data/bus-118.csv"
+ORTHOGONAL_BUS_57 = ROOT + "/data/bus-57.csv"
+ORTHOGONAL_BUS_30 = ROOT + "/data/bus-30.csv"
+ORTHOGONAL_BUS_14 = ROOT + "/data/bus-14.csv"
+
+ORTHOGONAL_BRANCH_1062 = ROOT + "/data/branch-1062.csv"
+ORTHOGONAL_BRANCH_300 = ROOT + "/data/branch-300.csv"
+ORTHOGONAL_BRANCH_118 = ROOT + "/data/branch-118.csv"
+ORTHOGONAL_BRANCH_57 = ROOT + "/data/branch-57.csv"
+ORTHOGONAL_BRANCH_30 = ROOT + "/data/branch-30.csv"
+ORTHOGONAL_BRANCH_14 = ROOT + "/data/branch-14.csv"
 
 ## Data loading을 위한 변수: Patient flow
 PATIENT_FLOW_PATH1_TYPE1 = ROOT + "/data/p1_type1.csv"
@@ -45,21 +51,49 @@ def most_central_edge(G):
 @app.route('/girvan-newman/', methods=['GET'])
 def runGirvanNewman():
   if request.method == 'GET':
-    ### (ex) /girvan-newman/?iter=8
+    ### (ex) /girvan-newman/?data=1062&iter=8
+    ### (ex) /girvan-newman/?data=300&iter=9
+    dataNum = int(request.args.get('data', ''))
     iterNum = int(request.args.get('iter', ''))
-
-    busData = pd.read_csv(BUS_PATH, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
-    branchData = pd.read_csv(BRANCH_PATH, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+    print('dataNum: ', dataNum)
+    
+    if dataNum == 1062:
+      busData = pd.read_csv(ORTHOGONAL_BUS_1062, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_1062, names=['from', 'to', 'r', 'x', 'b', 'tap'])
+    elif dataNum == 300:
+      busData = pd.read_csv(ORTHOGONAL_BUS_300, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_300, names=['from', 'to'])
+    elif dataNum == 118:
+      busData = pd.read_csv(ORTHOGONAL_BUS_118, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_118, names=['from', 'to'])
+    elif dataNum == 57:
+      busData = pd.read_csv(ORTHOGONAL_BUS_57, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_57, names=['from', 'to'])
+    elif dataNum == 30:
+      busData = pd.read_csv(ORTHOGONAL_BUS_30, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_30, names=['from', 'to'])
+    elif dataNum == 14:
+      busData = pd.read_csv(ORTHOGONAL_BUS_14, names=['id', 'area', 'degree'])
+      branchData = pd.read_csv(ORTHOGONAL_BRANCH_14, names=['from', 'to'])
+    else:
+      return f'data must in [1062, 300, 118, 57, 30, 14]'
     
     branch_from = branchData['from']
     branch_to = branchData['to']
-
+    
     ## 방향성 멀티 그래프 생성 (= null graph: 0 node, 0 edge)
     G = nx.MultiDiGraph()
+
+    ## Node 추가
+    id_list = busData['id'].to_list()
+    id_list.remove('id')
+    print('id_list', id_list)
+    for i in id_list:
+      G.add_node(i)
     
-    ## Node, Edge 추가 (아무 연결도 없는 Node는 없다고 가정 -> Branch data 기준으로 add edge)
-    for e in range(1, len(branchData)):
-      G.add_edge(branch_from[e], branch_to[e], edge=e)
+    ## Edge 추가
+    for i in range(1, len(branchData.index)):
+      G.add_edge(branch_from[i], branch_to[i])
     
     ## Debug: Node & Edge 개수
     print(f'Node Count: {G.number_of_nodes()}', sep=" ")
@@ -74,20 +108,22 @@ def runGirvanNewman():
     busData = busData.drop('area', axis=1)
     busData['cluster'] = -1
     branchData = branchData.drop([0], axis=0)
+    busData = busData.astype({'id': 'int'})
     
     for i, row in enumerate(girvan_newman_result):
       print("cluster", i)
       row = list(map(int, row))
       row.sort()
       print(row)
-      busData['cluster'][row] = i
+      for j in row:
+        busData.loc[busData['id'] == j, 'cluster'] = i
+        break
     
-    ## 각 Community의 노드 개수 및 결과 출력
+    ## Debug: 각 Community의 노드 개수 및 결과 출력
     k = 1
     for i in girvan_newman_result:
       print(f"Community {k}: {len(i)}", sep=" ")
       k += 1
-    print(f"Community Count: {len(girvan_newman_result)}", sep=" ")
     
     ## JSON 객체 리턴
     bus_dict = busData.to_dict('records')
@@ -98,7 +134,6 @@ def runGirvanNewman():
     }
     
     json_result = json.dumps(data)
-    print(json_result)
     return f'{json_result}'
   
   return 'error'
