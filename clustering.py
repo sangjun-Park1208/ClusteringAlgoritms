@@ -52,7 +52,7 @@ def most_central_edge(G):
 def runGirvanNewman():
   if request.method == 'GET':
     ### (ex) /girvan-newman/?data=1062&iter=8
-    ### (ex) /girvan-newman/?data=300&iter=9
+    ### (ex) /girvan-newman/?data=300&iter=3
     dataNum = int(request.args.get('data', ''))
     iterNum = int(request.args.get('iter', ''))
     print('dataNum: ', dataNum)
@@ -178,7 +178,7 @@ def runGirvanNewmanPF():
     patient_data = patient_data.sort_values(['from', 'to'])
     
     # 멀티 그래프 객체 생성
-    mg = nx.MultiGraph()
+    mg = nx.MultiDiGraph()
     
     # node 추가
     l_region = patient_region_data['id'].to_list()
@@ -335,7 +335,7 @@ def runLouvainPF():
     patient_data = patient_data.sort_values(['from', 'to'])
 
     # 멀티 그래프 객체 생성
-    mg = nx.MultiGraph()
+    mg = nx.MultiDiGraph()
     
     # node 추가
     l_region = patient_region_data['id'].to_list()
@@ -363,10 +363,11 @@ def runLouvainPF():
 
 
 # function to obtain the communities calculated by leiden algorithm
-def get_leiden_communities(graph, random_state=0):
-  if isinstance(graph, (nx.Graph, nx.DiGraph)):
+def get_leiden_communities(graph):
+  if isinstance(graph, nx.MultiDiGraph):
       graph = ig.Graph.from_networkx(graph)
-  return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition, seed=random_state))
+      print("야이 ㄱ")
+  return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition))
   
 @app.route('/leiden/', methods=['GET'])
 def runLeiden():
@@ -374,8 +375,7 @@ def runLeiden():
   ### (ex) /leiden/?data=300
   dataNum = int(request.args.get('data', ''))
   print('dataNum: ', dataNum)
-  # branch = pd.read_csv(BRANCH_PATH, encoding = 'euc-kr')
-  # bus = pd.read_csv(BUS_PATH, encoding = 'euc-kr')
+  
   if dataNum == 1062:
     busData = pd.read_csv(ORTHOGONAL_BUS_1062, names=['id', 'type', 'pd', 'qd', 'bs', 'area', 'vmag', 'vang', 'pvtype'])
     branchData = pd.read_csv(ORTHOGONAL_BRANCH_1062, names=['from', 'to', 'r', 'x', 'b', 'tap'])
@@ -408,22 +408,30 @@ def runLeiden():
   branchData = branchData.astype({'to': 'int'})
   branch_from = branchData['from']
   branch_to = branchData['to']
+  # print('branch_from', branch_from, sep='\n')
+  # print('branch_to', branch_to, sep='\n')
+  
   
   # 멀티 그래프 객체 생성
-  G = nx.MultiGraph()
+  G = nx.MultiDiGraph()
   
   ## Node 추가
   id_list = busData['id'].to_list()
   print('id_list', id_list, sep='\n')
   for i in id_list:
     G.add_node(i)
-  print(G.nodes)
+  print('G.nodes', G.nodes, sep='\n')
   
   ## Edge 추가
   for i in range(1, len(branchData.index)+1):
     G.add_edge(branch_from[i], branch_to[i])
+  print('G.edges', G.edges.data(), sep='\n')
+    
+  ## Debug: Node & Edge 개수
+  print(f'Node Count: {G.number_of_nodes()}', sep=" ")
+  print(f'Edge Count: {G.number_of_edges()}', sep=" ")
 
-  # print('before:', busData, sep='\n')
+
   leiden_communities = get_leiden_communities(G)
   print(leiden_communities)
   for i, row in enumerate (leiden_communities):
@@ -433,6 +441,8 @@ def runLeiden():
     print(row)
     for j in row:
       busData.loc[busData['id'] == j+1, 'cluster'] = i
+  
+  busData.to_csv('C:/Users/user/Desktop/ClusteringAlgorithms/data/test.csv')
 
   print('after:', busData, sep='\n')
   bus_dict = busData.to_dict('records')
@@ -483,7 +493,7 @@ def runLeidenPF():
   patient_data = patient_data.sort_values(['from', 'to'])
   
   # 멀티 그래프 객체 생성
-  mg = nx.MultiGraph()
+  mg = nx.MultiDiGraph()
   
   # node 추가
   l_region = patient_region_data['id'].to_list()
