@@ -407,23 +407,18 @@ def runLeiden():
   branchData = branchData.astype({'to': 'int'})
   branch_from = branchData['from']
   branch_to = branchData['to']
-  # print('branch_from', branch_from, sep='\n')
-  # print('branch_to', branch_to, sep='\n')
   
   # 멀티 그래프 객체 생성
   G = nx.MultiDiGraph()
   
   ## Node 추가
   id_list = busData['id'].to_list()
-  # print('id_list', id_list, sep='\n')
   for i in id_list:
     G.add_node(i)
-  # print('G.nodes', G.nodes, sep='\n')
   
   ## Edge 추가
   for i in range(1, len(branchData.index)+1):
     G.add_edge(branch_from[i], branch_to[i])
-  # print('G.edges', G.edges.data(), sep='\n')
     
   ## Debug: Node & Edge 개수
   print(f'Node Count: {G.number_of_nodes()}', sep=" ")
