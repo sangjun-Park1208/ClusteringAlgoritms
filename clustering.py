@@ -435,8 +435,6 @@ def runLeiden():
     for j in row:
       # busData.loc[busData['id'] == j+1, 'cluster'] = i
       busData.loc[int(busData.index[j]), 'cluster'] = i
-  
-  busData.to_csv('C:/Users/user/Desktop/ClusteringAlgorithms/data/test.csv')
 
   print('after:', busData, sep='\n')
   bus_dict = busData.to_dict('records')
