@@ -400,7 +400,6 @@ def runLeiden():
   busData = busData.drop('area', axis=1)
   busData['cluster'] = -1
   busData = busData.astype({'id': 'int'})
-  print('busData: before', busData, sep='\n')
   
   branchData = branchData.drop([0], axis=0)
   branchData = branchData.astype({'from': 'int'})
@@ -426,7 +425,7 @@ def runLeiden():
 
 
   leiden_communities = get_leiden_communities(G)
-  print('leiden_communities', leiden_communities, sep='\n')
+  # print('leiden_communities', leiden_communities, sep='\n')
   for i, row in enumerate (leiden_communities):
     print("cluster", i)
     row = list(map(int, row))
@@ -436,7 +435,6 @@ def runLeiden():
       # busData.loc[busData['id'] == j+1, 'cluster'] = i
       busData.loc[int(busData.index[j]), 'cluster'] = i
 
-  print('after:', busData, sep='\n')
   bus_dict = busData.to_dict('records')
   branch_dict = branchData.to_dict('records')
   data = {
