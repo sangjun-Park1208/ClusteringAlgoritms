@@ -365,8 +365,7 @@ def runLouvainPF():
 # function to obtain the communities calculated by leiden algorithm
 def get_leiden_communities(graph):
   if isinstance(graph, nx.MultiDiGraph):
-      graph = ig.Graph.from_networkx(graph)
-      print("야이 ㄱ")
+    graph = ig.Graph.from_networkx(graph, vertex_attr_hashable="name")
   return list(leidenalg.find_partition(graph, partition_type=leidenalg.ModularityVertexPartition))
   
 @app.route('/leiden/', methods=['GET'])
@@ -401,7 +400,7 @@ def runLeiden():
   busData = busData.drop('area', axis=1)
   busData['cluster'] = -1
   busData = busData.astype({'id': 'int'})
-  print('busData', busData, sep='\n')
+  print('busData: before', busData, sep='\n')
   
   branchData = branchData.drop([0], axis=0)
   branchData = branchData.astype({'from': 'int'})
@@ -411,21 +410,20 @@ def runLeiden():
   # print('branch_from', branch_from, sep='\n')
   # print('branch_to', branch_to, sep='\n')
   
-  
   # 멀티 그래프 객체 생성
   G = nx.MultiDiGraph()
   
   ## Node 추가
   id_list = busData['id'].to_list()
-  print('id_list', id_list, sep='\n')
+  # print('id_list', id_list, sep='\n')
   for i in id_list:
     G.add_node(i)
-  print('G.nodes', G.nodes, sep='\n')
+  # print('G.nodes', G.nodes, sep='\n')
   
   ## Edge 추가
   for i in range(1, len(branchData.index)+1):
     G.add_edge(branch_from[i], branch_to[i])
-  print('G.edges', G.edges.data(), sep='\n')
+  # print('G.edges', G.edges.data(), sep='\n')
     
   ## Debug: Node & Edge 개수
   print(f'Node Count: {G.number_of_nodes()}', sep=" ")
@@ -433,14 +431,15 @@ def runLeiden():
 
 
   leiden_communities = get_leiden_communities(G)
-  print(leiden_communities)
+  print('leiden_communities', leiden_communities, sep='\n')
   for i, row in enumerate (leiden_communities):
     print("cluster", i)
     row = list(map(int, row))
     row.sort()
     print(row)
     for j in row:
-      busData.loc[busData['id'] == j+1, 'cluster'] = i
+      # busData.loc[busData['id'] == j+1, 'cluster'] = i
+      busData.loc[int(busData.index[j]), 'cluster'] = i
   
   busData.to_csv('C:/Users/user/Desktop/ClusteringAlgorithms/data/test.csv')
 
