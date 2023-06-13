@@ -20,10 +20,12 @@ def plot_group_bar_chart(xTitle, yTitle, chartName, groupNames, labelNames, data
     bar_width = 0.1
     opacity = 0.8
     space = 0  # 그룹 사이의 간격
+    
+    ax.set_yscale('log')
 
     for i, group_data in enumerate(data):
-      offset = bar_width * space
       print(f'{i}: ', group_data, sep=' ')
+      offset = bar_width * space
       ax.bar(x + offset, group_data, bar_width, alpha=opacity, label=labelNames[i], color=colors[i])
       space += 1.1
 
@@ -31,7 +33,7 @@ def plot_group_bar_chart(xTitle, yTitle, chartName, groupNames, labelNames, data
     ax.set_xlabel(xTitle)
     ax.set_ylabel(yTitle)
     ax.set_title(chartName)
-    ax.set_xticks(x + bar_width * 2.5 * (len(groupNames) - 1) / 2)
+    ax.set_xticks(x + bar_width * 0.6 * (len(groupNames) - 1) / 2)
     ax.set_xticklabels(groupNames)
     ax.legend()
 
@@ -43,6 +45,638 @@ def mapping(list, key):
   for item in list:
     ret.append(item[key])
   return ret
+
+# (0)
+## Xticks: Vertex
+## Y: Length, Crossing, Bending
+## Group: Layout
+## 인자: Algorithm, Port
+def draw_algorithm_port(algorithm, port, data):
+  groupNames = ["14", "30", "57", "118", "300", "1062"]
+  labelNames = ["ascending", "zigzag", "local min", "global min"]
+
+  # 데이터 분리
+  # louvain
+  ## 4port
+  ### length
+  louvain_4port_zigzag_length = mapping(data['louvain4'], "zig-zag")
+  louvain_4port_ascending_length = mapping(data['louvain4'], "ascending")
+  louvain_4port_localmin_length = mapping(data['louvain4'], "local_min")
+  louvain_4port_globalmin_length = mapping(data['louvain4'], "global_min")   
+  ### crossing
+  louvain_4port_zigzag_crossing = mapping(data['louvain4'], "zig-zag2")
+  louvain_4port_ascending_crossing = mapping(data['louvain4'], "ascending2")
+  louvain_4port_localmin_crossing = mapping(data['louvain4'], "local_min2")  
+  louvain_4port_globalmin_crossing = mapping(data['louvain4'], "global_min2")
+  ### bending
+  louvain_4port_zigzag_bending = mapping(data['louvain4'], "zig-zag3")
+  louvain_4port_ascending_bending = mapping(data['louvain4'], "ascending3")
+  louvain_4port_localmin_bending = mapping(data['louvain4'], "local_min3")  
+  louvain_4port_globalmin_bending = mapping(data['louvain4'], "global_min3")
+  
+  ## 8port
+  ### length
+  louvain_8port_zigzag_length = mapping(data['louvain8'], "zig-zag")
+  louvain_8port_ascending_length = mapping(data['louvain8'], "ascending")
+  louvain_8port_localmin_length = mapping(data['louvain8'], "local_min")
+  louvain_8port_globalmin_length = mapping(data['louvain8'], "global_min")   
+  ### crossing
+  louvain_8port_zigzag_crossing = mapping(data['louvain8'], "zig-zag2")
+  louvain_8port_ascending_crossing = mapping(data['louvain8'], "ascending2")
+  louvain_8port_localmin_crossing = mapping(data['louvain8'], "local_min2")  
+  louvain_8port_globalmin_crossing = mapping(data['louvain8'], "global_min2")
+  ### bending
+  louvain_8port_zigzag_bending = mapping(data['louvain8'], "zig-zag3")
+  louvain_8port_ascending_bending = mapping(data['louvain8'], "ascending3")
+  louvain_8port_localmin_bending = mapping(data['louvain8'], "local_min3")  
+  louvain_8port_globalmin_bending = mapping(data['louvain8'], "global_min3") 
+  
+  ## 12port
+  ### length
+  louvain_12port_zigzag_length = mapping(data['louvain12'], "zig-zag")
+  louvain_12port_ascending_length = mapping(data['louvain12'], "ascending")
+  louvain_12port_localmin_length = mapping(data['louvain12'], "local_min")
+  louvain_12port_globalmin_length = mapping(data['louvain12'], "global_min")   
+  ### crossing
+  louvain_12port_zigzag_crossing = mapping(data['louvain12'], "zig-zag2")
+  louvain_12port_ascending_crossing = mapping(data['louvain12'], "ascending2")
+  louvain_12port_localmin_crossing = mapping(data['louvain12'], "local_min2")  
+  louvain_12port_globalmin_crossing = mapping(data['louvain12'], "global_min2")
+  ### bending
+  louvain_12port_zigzag_bending = mapping(data['louvain12'], "zig-zag3")
+  louvain_12port_ascending_bending = mapping(data['louvain12'], "ascending3")
+  louvain_12port_localmin_bending = mapping(data['louvain12'], "local_min3")  
+  louvain_12port_globalmin_bending = mapping(data['louvain12'], "global_min3") 
+  
+  # leiden
+  ## 4port
+  ### length
+  leiden_4port_zigzag_length = mapping(data['leiden4'], "zig-zag")
+  leiden_4port_ascending_length = mapping(data['leiden4'], "ascending")
+  leiden_4port_localmin_length = mapping(data['leiden4'], "local_min")
+  leiden_4port_globalmin_length = mapping(data['leiden4'], "global_min")   
+  ### crossing
+  leiden_4port_zigzag_crossing = mapping(data['leiden4'], "zig-zag2")
+  leiden_4port_ascending_crossing = mapping(data['leiden4'], "ascending2")
+  leiden_4port_localmin_crossing = mapping(data['leiden4'], "local_min2")  
+  leiden_4port_globalmin_crossing = mapping(data['leiden4'], "global_min2")
+  ### bending
+  leiden_4port_zigzag_bending = mapping(data['leiden4'], "zig-zag3")
+  leiden_4port_ascending_bending = mapping(data['leiden4'], "ascending3")
+  leiden_4port_localmin_bending = mapping(data['leiden4'], "local_min3")  
+  leiden_4port_globalmin_bending = mapping(data['leiden4'], "global_min3")
+  
+  ## 8port
+  ### length
+  leiden_8port_zigzag_length = mapping(data['leiden8'], "zig-zag")
+  leiden_8port_ascending_length = mapping(data['leiden8'], "ascending")
+  leiden_8port_localmin_length = mapping(data['leiden8'], "local_min")
+  leiden_8port_globalmin_length = mapping(data['leiden8'], "global_min")   
+  ### crossing
+  leiden_8port_zigzag_crossing = mapping(data['leiden8'], "zig-zag2")
+  leiden_8port_ascending_crossing = mapping(data['leiden8'], "ascending2")
+  leiden_8port_localmin_crossing = mapping(data['leiden8'], "local_min2")  
+  leiden_8port_globalmin_crossing = mapping(data['leiden8'], "global_min2")
+  ### bending
+  leiden_8port_zigzag_bending = mapping(data['leiden8'], "zig-zag3")
+  leiden_8port_ascending_bending = mapping(data['leiden8'], "ascending3")
+  leiden_8port_localmin_bending = mapping(data['leiden8'], "local_min3")  
+  leiden_8port_globalmin_bending = mapping(data['leiden8'], "global_min3") 
+  
+  ## 12port
+  ### length
+  leiden_12port_zigzag_length = mapping(data['leiden12'], "zig-zag")
+  leiden_12port_ascending_length = mapping(data['leiden12'], "ascending")
+  leiden_12port_localmin_length = mapping(data['leiden12'], "local_min")
+  leiden_12port_globalmin_length = mapping(data['leiden12'], "global_min")   
+  ### crossing
+  leiden_12port_zigzag_crossing = mapping(data['leiden12'], "zig-zag2")
+  leiden_12port_ascending_crossing = mapping(data['leiden12'], "ascending2")
+  leiden_12port_localmin_crossing = mapping(data['leiden12'], "local_min2")  
+  leiden_12port_globalmin_crossing = mapping(data['leiden12'], "global_min2")
+  ### bending
+  leiden_12port_zigzag_bending = mapping(data['leiden12'], "zig-zag3")
+  leiden_12port_ascending_bending = mapping(data['leiden12'], "ascending3")
+  leiden_12port_localmin_bending = mapping(data['leiden12'], "local_min3")  
+  leiden_12port_globalmin_bending = mapping(data['leiden12'], "global_min3")
+  
+  
+  # girvan-newman
+  ## 4port
+  ### length
+  girvan_4port_zigzag_length = mapping(data['girvan4'], "zig-zag")
+  girvan_4port_ascending_length = mapping(data['girvan4'], "ascending")
+  girvan_4port_localmin_length = mapping(data['girvan4'], "local_min")
+  girvan_4port_globalmin_length = mapping(data['girvan4'], "global_min")   
+  ### crossing
+  girvan_4port_zigzag_crossing = mapping(data['girvan4'], "zig-zag2")
+  girvan_4port_ascending_crossing = mapping(data['girvan4'], "ascending2")
+  girvan_4port_localmin_crossing = mapping(data['girvan4'], "local_min2")  
+  girvan_4port_globalmin_crossing = mapping(data['girvan4'], "global_min2")
+  ### bending
+  girvan_4port_zigzag_bending = mapping(data['girvan4'], "zig-zag3")
+  girvan_4port_ascending_bending = mapping(data['girvan4'], "ascending3")
+  girvan_4port_localmin_bending = mapping(data['girvan4'], "local_min3")  
+  girvan_4port_globalmin_bending = mapping(data['girvan4'], "global_min3")
+  
+  ## 8port
+  ### length
+  girvan_8port_zigzag_length = mapping(data['girvan8'], "zig-zag")
+  girvan_8port_ascending_length = mapping(data['girvan8'], "ascending")
+  girvan_8port_localmin_length = mapping(data['girvan8'], "local_min")
+  girvan_8port_globalmin_length = mapping(data['girvan8'], "global_min")   
+  ### crossing
+  girvan_8port_zigzag_crossing = mapping(data['girvan8'], "zig-zag2")
+  girvan_8port_ascending_crossing = mapping(data['girvan8'], "ascending2")
+  girvan_8port_localmin_crossing = mapping(data['girvan8'], "local_min2")  
+  girvan_8port_globalmin_crossing = mapping(data['girvan8'], "global_min2")
+  ### bending
+  girvan_8port_zigzag_bending = mapping(data['girvan8'], "zig-zag3")
+  girvan_8port_ascending_bending = mapping(data['girvan8'], "ascending3")
+  girvan_8port_localmin_bending = mapping(data['girvan8'], "local_min3")  
+  girvan_8port_globalmin_bending = mapping(data['girvan8'], "global_min3") 
+  
+  ## 12port
+  ### length
+  girvan_12port_zigzag_length = mapping(data['girvan12'], "zig-zag")
+  girvan_12port_ascending_length = mapping(data['girvan12'], "ascending")
+  girvan_12port_localmin_length = mapping(data['girvan12'], "local_min")
+  girvan_12port_globalmin_length = mapping(data['girvan12'], "global_min")   
+  ### crossing
+  girvan_12port_zigzag_crossing = mapping(data['girvan12'], "zig-zag2")
+  girvan_12port_ascending_crossing = mapping(data['girvan12'], "ascending2")
+  girvan_12port_localmin_crossing = mapping(data['girvan12'], "local_min2")  
+  girvan_12port_globalmin_crossing = mapping(data['girvan12'], "global_min2")
+  ### bending
+  girvan_12port_zigzag_bending = mapping(data['girvan12'], "zig-zag3")
+  girvan_12port_ascending_bending = mapping(data['girvan12'], "ascending3")
+  girvan_12port_localmin_bending = mapping(data['girvan12'], "local_min3")  
+  girvan_12port_globalmin_bending = mapping(data['girvan12'], "global_min3")
+
+  louvain_4port_v14_length = []
+  louvain_4port_v30_length = []
+  louvain_4port_v57_length = []
+  louvain_4port_v118_length = []
+  louvain_4port_v300_length = []
+  louvain_4port_v1062_length = []
+  louvain_4port_length = []
+  louvain_4port_v14_length.extend([louvain_4port_zigzag_length[0], louvain_4port_ascending_length[0], louvain_4port_localmin_length[0], louvain_4port_globalmin_length[0]])
+  louvain_4port_v30_length.extend([louvain_4port_zigzag_length[1], louvain_4port_ascending_length[1], louvain_4port_localmin_length[1], louvain_4port_globalmin_length[1]])
+  louvain_4port_v57_length.extend([louvain_4port_zigzag_length[2], louvain_4port_ascending_length[2], louvain_4port_localmin_length[2], louvain_4port_globalmin_length[2]])
+  louvain_4port_v118_length.extend([louvain_4port_zigzag_length[3], louvain_4port_ascending_length[3], louvain_4port_localmin_length[3], louvain_4port_globalmin_length[3]])
+  louvain_4port_v300_length.extend([louvain_4port_zigzag_length[4], louvain_4port_ascending_length[4], louvain_4port_localmin_length[4], louvain_4port_globalmin_length[4]])
+  louvain_4port_v1062_length.extend([louvain_4port_zigzag_length[5], louvain_4port_ascending_length[5], louvain_4port_localmin_length[5], louvain_4port_globalmin_length[5]])
+  louvain_4port_length.extend([louvain_4port_v14_length, louvain_4port_v30_length, louvain_4port_v57_length,
+                               louvain_4port_v118_length, louvain_4port_v300_length, louvain_4port_v1062_length])
+
+  louvain_4port_v14_crossing = []
+  louvain_4port_v30_crossing = []
+  louvain_4port_v57_crossing = []
+  louvain_4port_v118_crossing = []
+  louvain_4port_v300_crossing = []
+  louvain_4port_v1062_crossing = []
+  louvain_4port_crossing = []
+  louvain_4port_v14_crossing.extend([louvain_4port_zigzag_crossing[0], louvain_4port_ascending_crossing[0], louvain_4port_localmin_crossing[0], louvain_4port_globalmin_crossing[0]])
+  louvain_4port_v30_crossing.extend([louvain_4port_zigzag_crossing[1], louvain_4port_ascending_crossing[1], louvain_4port_localmin_crossing[1], louvain_4port_globalmin_crossing[1]])
+  louvain_4port_v57_crossing.extend([louvain_4port_zigzag_crossing[2], louvain_4port_ascending_crossing[2], louvain_4port_localmin_crossing[2], louvain_4port_globalmin_crossing[2]])
+  louvain_4port_v118_crossing.extend([louvain_4port_zigzag_crossing[3], louvain_4port_ascending_crossing[3], louvain_4port_localmin_crossing[3], louvain_4port_globalmin_crossing[3]])
+  louvain_4port_v300_crossing.extend([louvain_4port_zigzag_crossing[4], louvain_4port_ascending_crossing[4], louvain_4port_localmin_crossing[4], louvain_4port_globalmin_crossing[4]])
+  louvain_4port_v1062_crossing.extend([louvain_4port_zigzag_crossing[5], louvain_4port_ascending_crossing[5], louvain_4port_localmin_crossing[5], louvain_4port_globalmin_crossing[5]])
+  louvain_4port_crossing.extend([louvain_4port_v14_crossing, louvain_4port_v30_crossing, louvain_4port_v57_crossing,
+                                 louvain_4port_v118_crossing, louvain_4port_v300_crossing, louvain_4port_v1062_crossing])
+
+  louvain_4port_v14_bending = []
+  louvain_4port_v30_bending = []
+  louvain_4port_v57_bending = []
+  louvain_4port_v118_bending = []
+  louvain_4port_v300_bending = []
+  louvain_4port_v1062_bending = []
+  louvain_4port_bending = []
+  louvain_4port_v14_bending.extend([louvain_4port_zigzag_bending[0], louvain_4port_ascending_bending[0], louvain_4port_localmin_bending[0], louvain_4port_globalmin_bending[0]])
+  louvain_4port_v30_bending.extend([louvain_4port_zigzag_bending[1], louvain_4port_ascending_bending[1], louvain_4port_localmin_bending[1], louvain_4port_globalmin_bending[1]])
+  louvain_4port_v57_bending.extend([louvain_4port_zigzag_bending[2], louvain_4port_ascending_bending[2], louvain_4port_localmin_bending[2], louvain_4port_globalmin_bending[2]])
+  louvain_4port_v118_bending.extend([louvain_4port_zigzag_bending[3], louvain_4port_ascending_bending[3], louvain_4port_localmin_bending[3], louvain_4port_globalmin_bending[3]])
+  louvain_4port_v300_bending.extend([louvain_4port_zigzag_bending[4], louvain_4port_ascending_bending[4], louvain_4port_localmin_bending[4], louvain_4port_globalmin_bending[4]])
+  louvain_4port_v1062_bending.extend([louvain_4port_zigzag_bending[5], louvain_4port_ascending_bending[5], louvain_4port_localmin_bending[5], louvain_4port_globalmin_bending[5]])
+  louvain_4port_bending.extend([louvain_4port_v14_bending, louvain_4port_v30_bending, louvain_4port_v57_bending,
+                                louvain_4port_v118_bending, louvain_4port_v300_bending, louvain_4port_v1062_bending])
+
+  louvain_8port_v14_length = []
+  louvain_8port_v30_length = []
+  louvain_8port_v57_length = []
+  louvain_8port_v118_length = []
+  louvain_8port_v300_length = []
+  louvain_8port_v1062_length = []
+  louvain_8port_length = []
+  louvain_8port_v14_length.extend([louvain_8port_zigzag_length[0], louvain_8port_ascending_length[0], louvain_8port_localmin_length[0], louvain_8port_globalmin_length[0]])
+  louvain_8port_v30_length.extend([louvain_8port_zigzag_length[1], louvain_8port_ascending_length[1], louvain_8port_localmin_length[1], louvain_8port_globalmin_length[1]])
+  louvain_8port_v57_length.extend([louvain_8port_zigzag_length[2], louvain_8port_ascending_length[2], louvain_8port_localmin_length[2], louvain_8port_globalmin_length[2]])
+  louvain_8port_v118_length.extend([louvain_8port_zigzag_length[3], louvain_8port_ascending_length[3], louvain_8port_localmin_length[3], louvain_8port_globalmin_length[3]])
+  louvain_8port_v300_length.extend([louvain_8port_zigzag_length[4], louvain_8port_ascending_length[4], louvain_8port_localmin_length[4], louvain_8port_globalmin_length[4]])
+  louvain_8port_v1062_length.extend([louvain_8port_zigzag_length[5], louvain_8port_ascending_length[5], louvain_8port_localmin_length[5], louvain_8port_globalmin_length[5]])
+  louvain_8port_length.extend([louvain_8port_v14_length, louvain_8port_v30_length, louvain_8port_v57_length,
+                               louvain_8port_v118_length, louvain_8port_v300_length, louvain_8port_v1062_length])
+
+  louvain_8port_v14_crossing = []
+  louvain_8port_v30_crossing = []
+  louvain_8port_v57_crossing = []
+  louvain_8port_v118_crossing = []
+  louvain_8port_v300_crossing = []
+  louvain_8port_v1062_crossing = []
+  louvain_8port_crossing = []
+  louvain_8port_v14_crossing.extend([louvain_8port_zigzag_crossing[0], louvain_8port_ascending_crossing[0], louvain_8port_localmin_crossing[0], louvain_8port_globalmin_crossing[0]])
+  louvain_8port_v30_crossing.extend([louvain_8port_zigzag_crossing[1], louvain_8port_ascending_crossing[1], louvain_8port_localmin_crossing[1], louvain_8port_globalmin_crossing[1]])
+  louvain_8port_v57_crossing.extend([louvain_8port_zigzag_crossing[2], louvain_8port_ascending_crossing[2], louvain_8port_localmin_crossing[2], louvain_8port_globalmin_crossing[2]])
+  louvain_8port_v118_crossing.extend([louvain_8port_zigzag_crossing[3], louvain_8port_ascending_crossing[3], louvain_8port_localmin_crossing[3], louvain_8port_globalmin_crossing[3]])
+  louvain_8port_v300_crossing.extend([louvain_8port_zigzag_crossing[4], louvain_8port_ascending_crossing[4], louvain_8port_localmin_crossing[4], louvain_8port_globalmin_crossing[4]])
+  louvain_8port_v1062_crossing.extend([louvain_8port_zigzag_crossing[5], louvain_8port_ascending_crossing[5], louvain_8port_localmin_crossing[5], louvain_8port_globalmin_crossing[5]])
+  louvain_8port_crossing.extend([louvain_8port_v14_crossing, louvain_8port_v30_crossing, louvain_8port_v57_crossing,
+                                 louvain_8port_v118_crossing, louvain_8port_v300_crossing, louvain_8port_v1062_crossing])
+
+  louvain_8port_v14_bending = []
+  louvain_8port_v30_bending = []
+  louvain_8port_v57_bending = []
+  louvain_8port_v118_bending = []
+  louvain_8port_v300_bending = []
+  louvain_8port_v1062_bending = []
+  louvain_8port_bending = []
+  louvain_8port_v14_bending.extend([louvain_8port_zigzag_bending[0], louvain_8port_ascending_bending[0], louvain_8port_localmin_bending[0], louvain_8port_globalmin_bending[0]])
+  louvain_8port_v30_bending.extend([louvain_8port_zigzag_bending[1], louvain_8port_ascending_bending[1], louvain_8port_localmin_bending[1], louvain_8port_globalmin_bending[1]])
+  louvain_8port_v57_bending.extend([louvain_8port_zigzag_bending[2], louvain_8port_ascending_bending[2], louvain_8port_localmin_bending[2], louvain_8port_globalmin_bending[2]])
+  louvain_8port_v118_bending.extend([louvain_8port_zigzag_bending[3], louvain_8port_ascending_bending[3], louvain_8port_localmin_bending[3], louvain_8port_globalmin_bending[3]])
+  louvain_8port_v300_bending.extend([louvain_8port_zigzag_bending[4], louvain_8port_ascending_bending[4], louvain_8port_localmin_bending[4], louvain_8port_globalmin_bending[4]])
+  louvain_8port_v1062_bending.extend([louvain_8port_zigzag_bending[5], louvain_8port_ascending_bending[5], louvain_8port_localmin_bending[5], louvain_8port_globalmin_bending[5]])
+  louvain_8port_bending.extend([louvain_8port_v14_bending, louvain_8port_v30_bending, louvain_8port_v57_bending,
+                                louvain_8port_v118_bending, louvain_8port_v300_bending, louvain_8port_v1062_bending])
+
+  louvain_12port_v14_length = []
+  louvain_12port_v30_length = []
+  louvain_12port_v57_length = []
+  louvain_12port_v118_length = []
+  louvain_12port_v300_length = []
+  louvain_12port_v1062_length = []
+  louvain_12port_length = []
+  louvain_12port_v14_length.extend([louvain_12port_zigzag_length[0], louvain_12port_ascending_length[0], louvain_12port_localmin_length[0], louvain_12port_globalmin_length[0]])
+  louvain_12port_v30_length.extend([louvain_12port_zigzag_length[1], louvain_12port_ascending_length[1], louvain_12port_localmin_length[1], louvain_12port_globalmin_length[1]])
+  louvain_12port_v57_length.extend([louvain_12port_zigzag_length[2], louvain_12port_ascending_length[2], louvain_12port_localmin_length[2], louvain_12port_globalmin_length[2]])
+  louvain_12port_v118_length.extend([louvain_12port_zigzag_length[3], louvain_12port_ascending_length[3], louvain_12port_localmin_length[3], louvain_12port_globalmin_length[3]])
+  louvain_12port_v300_length.extend([louvain_12port_zigzag_length[4], louvain_12port_ascending_length[4], louvain_12port_localmin_length[4], louvain_12port_globalmin_length[4]])
+  louvain_12port_v1062_length.extend([louvain_12port_zigzag_length[5], louvain_12port_ascending_length[5], louvain_12port_localmin_length[5], louvain_12port_globalmin_length[5]])
+  louvain_12port_length.extend([louvain_12port_v14_length, louvain_12port_v30_length, louvain_12port_v57_length,
+                                louvain_12port_v118_length, louvain_12port_v300_length, louvain_12port_v1062_length])
+
+  louvain_12port_v14_crossing = []
+  louvain_12port_v30_crossing = []
+  louvain_12port_v57_crossing = []
+  louvain_12port_v118_crossing = []
+  louvain_12port_v300_crossing = []
+  louvain_12port_v1062_crossing = []
+  louvain_12port_crossing = []
+  louvain_12port_v14_crossing.extend([louvain_12port_zigzag_crossing[0], louvain_12port_ascending_crossing[0], louvain_12port_localmin_crossing[0], louvain_12port_globalmin_crossing[0]])
+  louvain_12port_v30_crossing.extend([louvain_12port_zigzag_crossing[1], louvain_12port_ascending_crossing[1], louvain_12port_localmin_crossing[1], louvain_12port_globalmin_crossing[1]])
+  louvain_12port_v57_crossing.extend([louvain_12port_zigzag_crossing[2], louvain_12port_ascending_crossing[2], louvain_12port_localmin_crossing[2], louvain_12port_globalmin_crossing[2]])
+  louvain_12port_v118_crossing.extend([louvain_12port_zigzag_crossing[3], louvain_12port_ascending_crossing[3], louvain_12port_localmin_crossing[3], louvain_12port_globalmin_crossing[3]])
+  louvain_12port_v300_crossing.extend([louvain_12port_zigzag_crossing[4], louvain_12port_ascending_crossing[4], louvain_12port_localmin_crossing[4], louvain_12port_globalmin_crossing[4]])
+  louvain_12port_v1062_crossing.extend([louvain_12port_zigzag_crossing[5], louvain_12port_ascending_crossing[5], louvain_12port_localmin_crossing[5], louvain_12port_globalmin_crossing[5]])
+  louvain_12port_crossing.extend([louvain_12port_v14_crossing, louvain_12port_v30_crossing, louvain_12port_v57_crossing,
+                                  louvain_12port_v118_crossing, louvain_12port_v300_crossing, louvain_12port_v1062_crossing])
+
+  louvain_12port_v14_bending = []
+  louvain_12port_v30_bending = []
+  louvain_12port_v57_bending = []
+  louvain_12port_v118_bending = []
+  louvain_12port_v300_bending = []
+  louvain_12port_v1062_bending = []
+  louvain_12port_bending = []
+  louvain_12port_v14_bending.extend([louvain_12port_zigzag_bending[0], louvain_12port_ascending_bending[0], louvain_12port_localmin_bending[0], louvain_12port_globalmin_bending[0]])
+  louvain_12port_v30_bending.extend([louvain_12port_zigzag_bending[1], louvain_12port_ascending_bending[1], louvain_12port_localmin_bending[1], louvain_12port_globalmin_bending[1]])
+  louvain_12port_v57_bending.extend([louvain_12port_zigzag_bending[2], louvain_12port_ascending_bending[2], louvain_12port_localmin_bending[2], louvain_12port_globalmin_bending[2]])
+  louvain_12port_v118_bending.extend([louvain_12port_zigzag_bending[3], louvain_12port_ascending_bending[3], louvain_12port_localmin_bending[3], louvain_12port_globalmin_bending[3]])
+  louvain_12port_v300_bending.extend([louvain_12port_zigzag_bending[4], louvain_12port_ascending_bending[4], louvain_12port_localmin_bending[4], louvain_12port_globalmin_bending[4]])
+  louvain_12port_v1062_bending.extend([louvain_12port_zigzag_bending[5], louvain_12port_ascending_bending[5], louvain_12port_localmin_bending[5], louvain_12port_globalmin_bending[5]])
+  louvain_12port_bending.extend([louvain_12port_v14_bending, louvain_12port_v30_bending, louvain_12port_v57_bending,
+                                 louvain_12port_v118_bending, louvain_12port_v300_bending, louvain_12port_v1062_bending])
+
+  leiden_4port_v14_length = []
+  leiden_4port_v30_length = []
+  leiden_4port_v57_length = []
+  leiden_4port_v118_length = []
+  leiden_4port_v300_length = []
+  leiden_4port_v1062_length = []
+  leiden_4port_length = []
+  leiden_4port_v14_length.extend([leiden_4port_zigzag_length[0], leiden_4port_ascending_length[0], leiden_4port_localmin_length[0], leiden_4port_globalmin_length[0]])
+  leiden_4port_v30_length.extend([leiden_4port_zigzag_length[1], leiden_4port_ascending_length[1], leiden_4port_localmin_length[1], leiden_4port_globalmin_length[1]])
+  leiden_4port_v57_length.extend([leiden_4port_zigzag_length[2], leiden_4port_ascending_length[2], leiden_4port_localmin_length[2], leiden_4port_globalmin_length[2]])
+  leiden_4port_v118_length.extend([leiden_4port_zigzag_length[3], leiden_4port_ascending_length[3], leiden_4port_localmin_length[3], leiden_4port_globalmin_length[3]])
+  leiden_4port_v300_length.extend([leiden_4port_zigzag_length[4], leiden_4port_ascending_length[4], leiden_4port_localmin_length[4], leiden_4port_globalmin_length[4]])
+  leiden_4port_v1062_length.extend([leiden_4port_zigzag_length[5], leiden_4port_ascending_length[5], leiden_4port_localmin_length[5], leiden_4port_globalmin_length[5]])
+  leiden_4port_length.extend([leiden_4port_v14_length, leiden_4port_v30_length, leiden_4port_v57_length,
+                              leiden_4port_v118_length, leiden_4port_v300_length, leiden_4port_v1062_length])
+
+  leiden_4port_v14_crossing = []
+  leiden_4port_v30_crossing = []
+  leiden_4port_v57_crossing = []
+  leiden_4port_v118_crossing = []
+  leiden_4port_v300_crossing = []
+  leiden_4port_v1062_crossing = []
+  leiden_4port_crossing = []
+  leiden_4port_v14_crossing.extend([leiden_4port_zigzag_crossing[0], leiden_4port_ascending_crossing[0], leiden_4port_localmin_crossing[0], leiden_4port_globalmin_crossing[0]])
+  leiden_4port_v30_crossing.extend([leiden_4port_zigzag_crossing[1], leiden_4port_ascending_crossing[1], leiden_4port_localmin_crossing[1], leiden_4port_globalmin_crossing[1]])
+  leiden_4port_v57_crossing.extend([leiden_4port_zigzag_crossing[2], leiden_4port_ascending_crossing[2], leiden_4port_localmin_crossing[2], leiden_4port_globalmin_crossing[2]])
+  leiden_4port_v118_crossing.extend([leiden_4port_zigzag_crossing[3], leiden_4port_ascending_crossing[3], leiden_4port_localmin_crossing[3], leiden_4port_globalmin_crossing[3]])
+  leiden_4port_v300_crossing.extend([leiden_4port_zigzag_crossing[4], leiden_4port_ascending_crossing[4], leiden_4port_localmin_crossing[4], leiden_4port_globalmin_crossing[4]])
+  leiden_4port_v1062_crossing.extend([leiden_4port_zigzag_crossing[5], leiden_4port_ascending_crossing[5], leiden_4port_localmin_crossing[5], leiden_4port_globalmin_crossing[5]])
+  leiden_4port_crossing.extend([leiden_4port_v14_crossing, leiden_4port_v30_crossing, leiden_4port_v57_crossing,
+                                leiden_4port_v118_crossing, leiden_4port_v300_crossing, leiden_4port_v1062_crossing])
+
+  leiden_4port_v14_bending = []
+  leiden_4port_v30_bending = []
+  leiden_4port_v57_bending = []
+  leiden_4port_v118_bending = []
+  leiden_4port_v300_bending = []
+  leiden_4port_v1062_bending = []
+  leiden_4port_bending = []
+  leiden_4port_v14_bending.extend([leiden_4port_zigzag_bending[0], leiden_4port_ascending_bending[0], leiden_4port_localmin_bending[0], leiden_4port_globalmin_bending[0]])
+  leiden_4port_v30_bending.extend([leiden_4port_zigzag_bending[1], leiden_4port_ascending_bending[1], leiden_4port_localmin_bending[1], leiden_4port_globalmin_bending[1]])
+  leiden_4port_v57_bending.extend([leiden_4port_zigzag_bending[2], leiden_4port_ascending_bending[2], leiden_4port_localmin_bending[2], leiden_4port_globalmin_bending[2]])
+  leiden_4port_v118_bending.extend([leiden_4port_zigzag_bending[3], leiden_4port_ascending_bending[3], leiden_4port_localmin_bending[3], leiden_4port_globalmin_bending[3]])
+  leiden_4port_v300_bending.extend([leiden_4port_zigzag_bending[4], leiden_4port_ascending_bending[4], leiden_4port_localmin_bending[4], leiden_4port_globalmin_bending[4]])
+  leiden_4port_v1062_bending.extend([leiden_4port_zigzag_bending[5], leiden_4port_ascending_bending[5], leiden_4port_localmin_bending[5], leiden_4port_globalmin_bending[5]])
+  leiden_4port_bending.extend([leiden_4port_v14_bending, leiden_4port_v30_bending, leiden_4port_v57_bending,
+                               leiden_4port_v118_bending, leiden_4port_v300_bending, leiden_4port_v1062_bending])
+
+  leiden_8port_v14_length = []
+  leiden_8port_v30_length = []
+  leiden_8port_v57_length = []
+  leiden_8port_v118_length = []
+  leiden_8port_v300_length = []
+  leiden_8port_v1062_length = []
+  leiden_8port_length = []
+  leiden_8port_v14_length.extend([leiden_8port_zigzag_length[0], leiden_8port_ascending_length[0], leiden_8port_localmin_length[0], leiden_8port_globalmin_length[0]])
+  leiden_8port_v30_length.extend([leiden_8port_zigzag_length[1], leiden_8port_ascending_length[1], leiden_8port_localmin_length[1], leiden_8port_globalmin_length[1]])
+  leiden_8port_v57_length.extend([leiden_8port_zigzag_length[2], leiden_8port_ascending_length[2], leiden_8port_localmin_length[2], leiden_8port_globalmin_length[2]])
+  leiden_8port_v118_length.extend([leiden_8port_zigzag_length[3], leiden_8port_ascending_length[3], leiden_8port_localmin_length[3], leiden_8port_globalmin_length[3]])
+  leiden_8port_v300_length.extend([leiden_8port_zigzag_length[4], leiden_8port_ascending_length[4], leiden_8port_localmin_length[4], leiden_8port_globalmin_length[4]])
+  leiden_8port_v1062_length.extend([leiden_8port_zigzag_length[5], leiden_8port_ascending_length[5], leiden_8port_localmin_length[5], leiden_8port_globalmin_length[5]])
+  leiden_8port_length.extend([leiden_8port_v14_length, leiden_8port_v30_length, leiden_8port_v57_length,
+                              leiden_8port_v118_length, leiden_8port_v300_length, leiden_8port_v1062_length])
+
+  leiden_8port_v14_crossing = []
+  leiden_8port_v30_crossing = []
+  leiden_8port_v57_crossing = []
+  leiden_8port_v118_crossing = []
+  leiden_8port_v300_crossing = []
+  leiden_8port_v1062_crossing = []
+  leiden_8port_crossing = []
+  leiden_8port_v14_crossing.extend([leiden_8port_zigzag_crossing[0], leiden_8port_ascending_crossing[0], leiden_8port_localmin_crossing[0], leiden_8port_globalmin_crossing[0]])
+  leiden_8port_v30_crossing.extend([leiden_8port_zigzag_crossing[1], leiden_8port_ascending_crossing[1], leiden_8port_localmin_crossing[1], leiden_8port_globalmin_crossing[1]])
+  leiden_8port_v57_crossing.extend([leiden_8port_zigzag_crossing[2], leiden_8port_ascending_crossing[2], leiden_8port_localmin_crossing[2], leiden_8port_globalmin_crossing[2]])
+  leiden_8port_v118_crossing.extend([leiden_8port_zigzag_crossing[3], leiden_8port_ascending_crossing[3], leiden_8port_localmin_crossing[3], leiden_8port_globalmin_crossing[3]])
+  leiden_8port_v300_crossing.extend([leiden_8port_zigzag_crossing[4], leiden_8port_ascending_crossing[4], leiden_8port_localmin_crossing[4], leiden_8port_globalmin_crossing[4]])
+  leiden_8port_v1062_crossing.extend([leiden_8port_zigzag_crossing[5], leiden_8port_ascending_crossing[5], leiden_8port_localmin_crossing[5], leiden_8port_globalmin_crossing[5]])
+  leiden_8port_crossing.extend([leiden_8port_v14_crossing, leiden_8port_v30_crossing, leiden_8port_v57_crossing,
+                                leiden_8port_v118_crossing, leiden_8port_v300_crossing, leiden_8port_v1062_crossing])
+
+  leiden_8port_v14_bending = []
+  leiden_8port_v30_bending = []
+  leiden_8port_v57_bending = []
+  leiden_8port_v118_bending = []
+  leiden_8port_v300_bending = []
+  leiden_8port_v1062_bending = []
+  leiden_8port_bending = []
+  leiden_8port_v14_bending.extend([leiden_8port_zigzag_bending[0], leiden_8port_ascending_bending[0], leiden_8port_localmin_bending[0], leiden_8port_globalmin_bending[0]])
+  leiden_8port_v30_bending.extend([leiden_8port_zigzag_bending[1], leiden_8port_ascending_bending[1], leiden_8port_localmin_bending[1], leiden_8port_globalmin_bending[1]])
+  leiden_8port_v57_bending.extend([leiden_8port_zigzag_bending[2], leiden_8port_ascending_bending[2], leiden_8port_localmin_bending[2], leiden_8port_globalmin_bending[2]])
+  leiden_8port_v118_bending.extend([leiden_8port_zigzag_bending[3], leiden_8port_ascending_bending[3], leiden_8port_localmin_bending[3], leiden_8port_globalmin_bending[3]])
+  leiden_8port_v300_bending.extend([leiden_8port_zigzag_bending[4], leiden_8port_ascending_bending[4], leiden_8port_localmin_bending[4], leiden_8port_globalmin_bending[4]])
+  leiden_8port_v1062_bending.extend([leiden_8port_zigzag_bending[5], leiden_8port_ascending_bending[5], leiden_8port_localmin_bending[5], leiden_8port_globalmin_bending[5]])
+  leiden_8port_bending.extend([leiden_8port_v14_bending, leiden_8port_v30_bending, leiden_8port_v57_bending,
+                               leiden_8port_v118_bending, leiden_8port_v300_bending, leiden_8port_v1062_bending])
+
+  leiden_12port_v14_length = []
+  leiden_12port_v30_length = []
+  leiden_12port_v57_length = []
+  leiden_12port_v118_length = []
+  leiden_12port_v300_length = []
+  leiden_12port_v1062_length = []
+  leiden_12port_length = []
+  leiden_12port_v14_length.extend([leiden_12port_zigzag_length[0], leiden_12port_ascending_length[0], leiden_12port_localmin_length[0], leiden_12port_globalmin_length[0]])
+  leiden_12port_v30_length.extend([leiden_12port_zigzag_length[1], leiden_12port_ascending_length[1], leiden_12port_localmin_length[1], leiden_12port_globalmin_length[1]])
+  leiden_12port_v57_length.extend([leiden_12port_zigzag_length[2], leiden_12port_ascending_length[2], leiden_12port_localmin_length[2], leiden_12port_globalmin_length[2]])
+  leiden_12port_v118_length.extend([leiden_12port_zigzag_length[3], leiden_12port_ascending_length[3], leiden_12port_localmin_length[3], leiden_12port_globalmin_length[3]])
+  leiden_12port_v300_length.extend([leiden_12port_zigzag_length[4], leiden_12port_ascending_length[4], leiden_12port_localmin_length[4], leiden_12port_globalmin_length[4]])
+  leiden_12port_v1062_length.extend([leiden_12port_zigzag_length[5], leiden_12port_ascending_length[5], leiden_12port_localmin_length[5], leiden_12port_globalmin_length[5]])
+  leiden_12port_length.extend([leiden_12port_v14_length, leiden_12port_v30_length, leiden_12port_v57_length,
+                               leiden_12port_v118_length, leiden_12port_v300_length, leiden_12port_v1062_length])
+
+  leiden_12port_v14_crossing = []
+  leiden_12port_v30_crossing = []
+  leiden_12port_v57_crossing = []
+  leiden_12port_v118_crossing = []
+  leiden_12port_v300_crossing = []
+  leiden_12port_v1062_crossing = []
+  leiden_12port_crossing = []
+  leiden_12port_v14_crossing.extend([leiden_12port_zigzag_crossing[0], leiden_12port_ascending_crossing[0], leiden_12port_localmin_crossing[0], leiden_12port_globalmin_crossing[0]])
+  leiden_12port_v30_crossing.extend([leiden_12port_zigzag_crossing[1], leiden_12port_ascending_crossing[1], leiden_12port_localmin_crossing[1], leiden_12port_globalmin_crossing[1]])
+  leiden_12port_v57_crossing.extend([leiden_12port_zigzag_crossing[2], leiden_12port_ascending_crossing[2], leiden_12port_localmin_crossing[2], leiden_12port_globalmin_crossing[2]])
+  leiden_12port_v118_crossing.extend([leiden_12port_zigzag_crossing[3], leiden_12port_ascending_crossing[3], leiden_12port_localmin_crossing[3], leiden_12port_globalmin_crossing[3]])
+  leiden_12port_v300_crossing.extend([leiden_12port_zigzag_crossing[4], leiden_12port_ascending_crossing[4], leiden_12port_localmin_crossing[4], leiden_12port_globalmin_crossing[4]])
+  leiden_12port_v1062_crossing.extend([leiden_12port_zigzag_crossing[5], leiden_12port_ascending_crossing[5], leiden_12port_localmin_crossing[5], leiden_12port_globalmin_crossing[5]])
+  leiden_12port_crossing.extend([leiden_12port_v14_crossing, leiden_12port_v30_crossing, leiden_12port_v57_crossing,
+                                 leiden_12port_v118_crossing, leiden_12port_v300_crossing, leiden_12port_v1062_crossing])
+
+  leiden_12port_v14_bending = []
+  leiden_12port_v30_bending = []
+  leiden_12port_v57_bending = []
+  leiden_12port_v118_bending = []
+  leiden_12port_v300_bending = []
+  leiden_12port_v1062_bending = []
+  leiden_12port_bending = []
+  leiden_12port_v14_bending.extend([leiden_12port_zigzag_bending[0], leiden_12port_ascending_bending[0], leiden_12port_localmin_bending[0], leiden_12port_globalmin_bending[0]])
+  leiden_12port_v30_bending.extend([leiden_12port_zigzag_bending[1], leiden_12port_ascending_bending[1], leiden_12port_localmin_bending[1], leiden_12port_globalmin_bending[1]])
+  leiden_12port_v57_bending.extend([leiden_12port_zigzag_bending[2], leiden_12port_ascending_bending[2], leiden_12port_localmin_bending[2], leiden_12port_globalmin_bending[2]])
+  leiden_12port_v118_bending.extend([leiden_12port_zigzag_bending[3], leiden_12port_ascending_bending[3], leiden_12port_localmin_bending[3], leiden_12port_globalmin_bending[3]])
+  leiden_12port_v300_bending.extend([leiden_12port_zigzag_bending[4], leiden_12port_ascending_bending[4], leiden_12port_localmin_bending[4], leiden_12port_globalmin_bending[4]])
+  leiden_12port_v1062_bending.extend([leiden_12port_zigzag_bending[5], leiden_12port_ascending_bending[5], leiden_12port_localmin_bending[5], leiden_12port_globalmin_bending[5]])
+  leiden_12port_bending.extend([leiden_12port_v14_bending, leiden_12port_v30_bending, leiden_12port_v57_bending,
+                                leiden_12port_v118_bending, leiden_12port_v300_bending, leiden_12port_v1062_bending])
+
+  girvan_4port_v14_length = []
+  girvan_4port_v30_length = []
+  girvan_4port_v57_length = []
+  girvan_4port_v118_length = []
+  girvan_4port_v300_length = []
+  girvan_4port_v1062_length = []
+  girvan_4port_length = []
+  girvan_4port_v14_length.extend([girvan_4port_zigzag_length[0], girvan_4port_ascending_length[0], girvan_4port_localmin_length[0], girvan_4port_globalmin_length[0]])
+  girvan_4port_v30_length.extend([girvan_4port_zigzag_length[1], girvan_4port_ascending_length[1], girvan_4port_localmin_length[1], girvan_4port_globalmin_length[1]])
+  girvan_4port_v57_length.extend([girvan_4port_zigzag_length[2], girvan_4port_ascending_length[2], girvan_4port_localmin_length[2], girvan_4port_globalmin_length[2]])
+  girvan_4port_v118_length.extend([girvan_4port_zigzag_length[3], girvan_4port_ascending_length[3], girvan_4port_localmin_length[3], girvan_4port_globalmin_length[3]])
+  girvan_4port_v300_length.extend([girvan_4port_zigzag_length[4], girvan_4port_ascending_length[4], girvan_4port_localmin_length[4], girvan_4port_globalmin_length[4]])
+  girvan_4port_v1062_length.extend([girvan_4port_zigzag_length[5], girvan_4port_ascending_length[5], girvan_4port_localmin_length[5], girvan_4port_globalmin_length[5]])
+  girvan_4port_length.extend([girvan_4port_v14_length, girvan_4port_v30_length, girvan_4port_v57_length,
+                              girvan_4port_v118_length, girvan_4port_v300_length, girvan_4port_v1062_length])
+
+  girvan_4port_v14_crossing = []
+  girvan_4port_v30_crossing = []
+  girvan_4port_v57_crossing = []
+  girvan_4port_v118_crossing = []
+  girvan_4port_v300_crossing = []
+  girvan_4port_v1062_crossing = []
+  girvan_4port_crossing = []
+  girvan_4port_v14_crossing.extend([girvan_4port_zigzag_crossing[0], girvan_4port_ascending_crossing[0], girvan_4port_localmin_crossing[0], girvan_4port_globalmin_crossing[0]])
+  girvan_4port_v30_crossing.extend([girvan_4port_zigzag_crossing[1], girvan_4port_ascending_crossing[1], girvan_4port_localmin_crossing[1], girvan_4port_globalmin_crossing[1]])
+  girvan_4port_v57_crossing.extend([girvan_4port_zigzag_crossing[2], girvan_4port_ascending_crossing[2], girvan_4port_localmin_crossing[2], girvan_4port_globalmin_crossing[2]])
+  girvan_4port_v118_crossing.extend([girvan_4port_zigzag_crossing[3], girvan_4port_ascending_crossing[3], girvan_4port_localmin_crossing[3], girvan_4port_globalmin_crossing[3]])
+  girvan_4port_v300_crossing.extend([girvan_4port_zigzag_crossing[4], girvan_4port_ascending_crossing[4], girvan_4port_localmin_crossing[4], girvan_4port_globalmin_crossing[4]])
+  girvan_4port_v1062_crossing.extend([girvan_4port_zigzag_crossing[5], girvan_4port_ascending_crossing[5], girvan_4port_localmin_crossing[5], girvan_4port_globalmin_crossing[5]])
+  girvan_4port_crossing.extend([girvan_4port_v14_crossing, girvan_4port_v30_crossing, girvan_4port_v57_crossing,
+                                girvan_4port_v118_crossing, girvan_4port_v300_crossing, girvan_4port_v1062_crossing])
+
+  girvan_4port_v14_bending = []
+  girvan_4port_v30_bending = []
+  girvan_4port_v57_bending = []
+  girvan_4port_v118_bending = []
+  girvan_4port_v300_bending = []
+  girvan_4port_v1062_bending = []
+  girvan_4port_bending = []
+  girvan_4port_v14_bending.extend([girvan_4port_zigzag_bending[0], girvan_4port_ascending_bending[0], girvan_4port_localmin_bending[0], girvan_4port_globalmin_bending[0]])
+  girvan_4port_v30_bending.extend([girvan_4port_zigzag_bending[1], girvan_4port_ascending_bending[1], girvan_4port_localmin_bending[1], girvan_4port_globalmin_bending[1]])
+  girvan_4port_v57_bending.extend([girvan_4port_zigzag_bending[2], girvan_4port_ascending_bending[2], girvan_4port_localmin_bending[2], girvan_4port_globalmin_bending[2]])
+  girvan_4port_v118_bending.extend([girvan_4port_zigzag_bending[3], girvan_4port_ascending_bending[3], girvan_4port_localmin_bending[3], girvan_4port_globalmin_bending[3]])
+  girvan_4port_v300_bending.extend([girvan_4port_zigzag_bending[4], girvan_4port_ascending_bending[4], girvan_4port_localmin_bending[4], girvan_4port_globalmin_bending[4]])
+  girvan_4port_v1062_bending.extend([girvan_4port_zigzag_bending[5], girvan_4port_ascending_bending[5], girvan_4port_localmin_bending[5], girvan_4port_globalmin_bending[5]])
+  girvan_4port_bending.extend([girvan_4port_v14_bending, girvan_4port_v30_bending, girvan_4port_v57_bending,
+                               girvan_4port_v118_bending, girvan_4port_v300_bending, girvan_4port_v1062_bending])
+
+  girvan_8port_v14_length = []
+  girvan_8port_v30_length = []
+  girvan_8port_v57_length = []
+  girvan_8port_v118_length = []
+  girvan_8port_v300_length = []
+  girvan_8port_v1062_length = []
+  girvan_8port_length = []
+  girvan_8port_v14_length.extend([girvan_8port_zigzag_length[0], girvan_8port_ascending_length[0], girvan_8port_localmin_length[0], girvan_8port_globalmin_length[0]])
+  girvan_8port_v30_length.extend([girvan_8port_zigzag_length[1], girvan_8port_ascending_length[1], girvan_8port_localmin_length[1], girvan_8port_globalmin_length[1]])
+  girvan_8port_v57_length.extend([girvan_8port_zigzag_length[2], girvan_8port_ascending_length[2], girvan_8port_localmin_length[2], girvan_8port_globalmin_length[2]])
+  girvan_8port_v118_length.extend([girvan_8port_zigzag_length[3], girvan_8port_ascending_length[3], girvan_8port_localmin_length[3], girvan_8port_globalmin_length[3]])
+  girvan_8port_v300_length.extend([girvan_8port_zigzag_length[4], girvan_8port_ascending_length[4], girvan_8port_localmin_length[4], girvan_8port_globalmin_length[4]])
+  girvan_8port_v1062_length.extend([girvan_8port_zigzag_length[5], girvan_8port_ascending_length[5], girvan_8port_localmin_length[5], girvan_8port_globalmin_length[5]])
+  girvan_8port_length.extend([girvan_8port_v14_length, girvan_8port_v30_length, girvan_8port_v57_length,
+                              girvan_8port_v118_length, girvan_8port_v300_length, girvan_8port_v1062_length])
+
+  girvan_8port_v14_crossing = []
+  girvan_8port_v30_crossing = []
+  girvan_8port_v57_crossing = []
+  girvan_8port_v118_crossing = []
+  girvan_8port_v300_crossing = []
+  girvan_8port_v1062_crossing = []
+  girvan_8port_crossing = []
+  girvan_8port_v14_crossing.extend([girvan_8port_zigzag_crossing[0], girvan_8port_ascending_crossing[0], girvan_8port_localmin_crossing[0], girvan_8port_globalmin_crossing[0]])
+  girvan_8port_v30_crossing.extend([girvan_8port_zigzag_crossing[1], girvan_8port_ascending_crossing[1], girvan_8port_localmin_crossing[1], girvan_8port_globalmin_crossing[1]])
+  girvan_8port_v57_crossing.extend([girvan_8port_zigzag_crossing[2], girvan_8port_ascending_crossing[2], girvan_8port_localmin_crossing[2], girvan_8port_globalmin_crossing[2]])
+  girvan_8port_v118_crossing.extend([girvan_8port_zigzag_crossing[3], girvan_8port_ascending_crossing[3], girvan_8port_localmin_crossing[3], girvan_8port_globalmin_crossing[3]])
+  girvan_8port_v300_crossing.extend([girvan_8port_zigzag_crossing[4], girvan_8port_ascending_crossing[4], girvan_8port_localmin_crossing[4], girvan_8port_globalmin_crossing[4]])
+  girvan_8port_v1062_crossing.extend([girvan_8port_zigzag_crossing[5], girvan_8port_ascending_crossing[5], girvan_8port_localmin_crossing[5], girvan_8port_globalmin_crossing[5]])
+  girvan_8port_crossing.extend([girvan_8port_v14_crossing, girvan_8port_v30_crossing, girvan_8port_v57_crossing,
+                                girvan_8port_v118_crossing, girvan_8port_v300_crossing, girvan_8port_v1062_crossing])
+
+  girvan_8port_v14_bending = []
+  girvan_8port_v30_bending = []
+  girvan_8port_v57_bending = []
+  girvan_8port_v118_bending = []
+  girvan_8port_v300_bending = []
+  girvan_8port_v1062_bending = []
+  girvan_8port_bending = []
+  girvan_8port_v14_bending.extend([girvan_8port_zigzag_bending[0], girvan_8port_ascending_bending[0], girvan_8port_localmin_bending[0], girvan_8port_globalmin_bending[0]])
+  girvan_8port_v30_bending.extend([girvan_8port_zigzag_bending[1], girvan_8port_ascending_bending[1], girvan_8port_localmin_bending[1], girvan_8port_globalmin_bending[1]])
+  girvan_8port_v57_bending.extend([girvan_8port_zigzag_bending[2], girvan_8port_ascending_bending[2], girvan_8port_localmin_bending[2], girvan_8port_globalmin_bending[2]])
+  girvan_8port_v118_bending.extend([girvan_8port_zigzag_bending[3], girvan_8port_ascending_bending[3], girvan_8port_localmin_bending[3], girvan_8port_globalmin_bending[3]])
+  girvan_8port_v300_bending.extend([girvan_8port_zigzag_bending[4], girvan_8port_ascending_bending[4], girvan_8port_localmin_bending[4], girvan_8port_globalmin_bending[4]])
+  girvan_8port_v1062_bending.extend([girvan_8port_zigzag_bending[5], girvan_8port_ascending_bending[5], girvan_8port_localmin_bending[5], girvan_8port_globalmin_bending[5]])
+  girvan_8port_bending.extend([girvan_8port_v14_bending, girvan_8port_v30_bending, girvan_8port_v57_bending,
+                               girvan_8port_v118_bending, girvan_8port_v300_bending, girvan_8port_v1062_bending])
+
+  girvan_12port_v14_length = []
+  girvan_12port_v30_length = []
+  girvan_12port_v57_length = []
+  girvan_12port_v118_length = []
+  girvan_12port_v300_length = []
+  girvan_12port_v1062_length = []
+  girvan_12port_length = []
+  girvan_12port_v14_length.extend([girvan_12port_zigzag_length[0], girvan_12port_ascending_length[0], girvan_12port_localmin_length[0], girvan_12port_globalmin_length[0]])
+  girvan_12port_v30_length.extend([girvan_12port_zigzag_length[1], girvan_12port_ascending_length[1], girvan_12port_localmin_length[1], girvan_12port_globalmin_length[1]])
+  girvan_12port_v57_length.extend([girvan_12port_zigzag_length[2], girvan_12port_ascending_length[2], girvan_12port_localmin_length[2], girvan_12port_globalmin_length[2]])
+  girvan_12port_v118_length.extend([girvan_12port_zigzag_length[3], girvan_12port_ascending_length[3], girvan_12port_localmin_length[3], girvan_12port_globalmin_length[3]])
+  girvan_12port_v300_length.extend([girvan_12port_zigzag_length[4], girvan_12port_ascending_length[4], girvan_12port_localmin_length[4], girvan_12port_globalmin_length[4]])
+  girvan_12port_v1062_length.extend([girvan_12port_zigzag_length[5], girvan_12port_ascending_length[5], girvan_12port_localmin_length[5], girvan_12port_globalmin_length[5]])
+  girvan_12port_length.extend([girvan_12port_v14_length, girvan_12port_v30_length, girvan_12port_v57_length,
+                               girvan_12port_v118_length, girvan_12port_v300_length, girvan_12port_v1062_length])
+
+  girvan_12port_v14_crossing = []
+  girvan_12port_v30_crossing = []
+  girvan_12port_v57_crossing = []
+  girvan_12port_v118_crossing = []
+  girvan_12port_v300_crossing = []
+  girvan_12port_v1062_crossing = []
+  girvan_12port_crossing = []
+  girvan_12port_v14_crossing.extend([girvan_12port_zigzag_crossing[0], girvan_12port_ascending_crossing[0], girvan_12port_localmin_crossing[0], girvan_12port_globalmin_crossing[0]])
+  girvan_12port_v30_crossing.extend([girvan_12port_zigzag_crossing[1], girvan_12port_ascending_crossing[1], girvan_12port_localmin_crossing[1], girvan_12port_globalmin_crossing[1]])
+  girvan_12port_v57_crossing.extend([girvan_12port_zigzag_crossing[2], girvan_12port_ascending_crossing[2], girvan_12port_localmin_crossing[2], girvan_12port_globalmin_crossing[2]])
+  girvan_12port_v118_crossing.extend([girvan_12port_zigzag_crossing[3], girvan_12port_ascending_crossing[3], girvan_12port_localmin_crossing[3], girvan_12port_globalmin_crossing[3]])
+  girvan_12port_v300_crossing.extend([girvan_12port_zigzag_crossing[4], girvan_12port_ascending_crossing[4], girvan_12port_localmin_crossing[4], girvan_12port_globalmin_crossing[4]])
+  girvan_12port_v1062_crossing.extend([girvan_12port_zigzag_crossing[5], girvan_12port_ascending_crossing[5], girvan_12port_localmin_crossing[5], girvan_12port_globalmin_crossing[5]])
+  girvan_12port_crossing.extend([girvan_12port_v14_crossing, girvan_12port_v30_crossing, girvan_12port_v57_crossing,
+                                 girvan_12port_v118_crossing, girvan_12port_v300_crossing, girvan_12port_v1062_crossing])
+
+  girvan_12port_v14_bending = []
+  girvan_12port_v30_bending = []
+  girvan_12port_v57_bending = []
+  girvan_12port_v118_bending = []
+  girvan_12port_v300_bending = []
+  girvan_12port_v1062_bending = []
+  girvan_12port_bending = []
+  girvan_12port_v14_bending.extend([girvan_12port_zigzag_bending[0], girvan_12port_ascending_bending[0], girvan_12port_localmin_bending[0], girvan_12port_globalmin_bending[0]])
+  girvan_12port_v30_bending.extend([girvan_12port_zigzag_bending[1], girvan_12port_ascending_bending[1], girvan_12port_localmin_bending[1], girvan_12port_globalmin_bending[1]])
+  girvan_12port_v57_bending.extend([girvan_12port_zigzag_bending[2], girvan_12port_ascending_bending[2], girvan_12port_localmin_bending[2], girvan_12port_globalmin_bending[2]])
+  girvan_12port_v118_bending.extend([girvan_12port_zigzag_bending[3], girvan_12port_ascending_bending[3], girvan_12port_localmin_bending[3], girvan_12port_globalmin_bending[3]])
+  girvan_12port_v300_bending.extend([girvan_12port_zigzag_bending[4], girvan_12port_ascending_bending[4], girvan_12port_localmin_bending[4], girvan_12port_globalmin_bending[4]])
+  girvan_12port_v1062_bending.extend([girvan_12port_zigzag_bending[5], girvan_12port_ascending_bending[5], girvan_12port_localmin_bending[5], girvan_12port_globalmin_bending[5]])
+  girvan_12port_bending.extend([girvan_12port_v14_bending, girvan_12port_v30_bending, girvan_12port_v57_bending,
+                                girvan_12port_v118_bending, girvan_12port_v300_bending, girvan_12port_v1062_bending])
+  
+  plot_group_bar_chart("vertex", "length", "louvain_4port_length", groupNames, labelNames, np.transpose(louvain_4port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "louvain_4port_crossing", groupNames, labelNames, np.transpose(louvain_4port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "louvain_4port_bending", groupNames, labelNames, np.transpose(louvain_4port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "louvain_8port_length", groupNames, labelNames, np.transpose(louvain_8port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "louvain_8port_crossing", groupNames, labelNames, np.transpose(louvain_8port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "louvain_8port_bending", groupNames, labelNames, np.transpose(louvain_8port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "louvain_12port_length", groupNames, labelNames, np.transpose(louvain_12port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "louvain_12port_crossing", groupNames, labelNames, np.transpose(louvain_12port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "louvain_12port_bending", groupNames, labelNames, np.transpose(louvain_12port_bending), colors_6)
+  
+  plot_group_bar_chart("vertex", "length", "leiden_4port_length", groupNames, labelNames, np.transpose(leiden_4port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "leiden_4port_crossing", groupNames, labelNames, np.transpose(leiden_4port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "leiden_4port_bending", groupNames, labelNames, np.transpose(leiden_4port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "leiden_8port_length", groupNames, labelNames, np.transpose(leiden_8port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "leiden_8port_crossing", groupNames, labelNames, np.transpose(leiden_8port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "leiden_8port_bending", groupNames, labelNames, np.transpose(leiden_8port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "leiden_12port_length", groupNames, labelNames, np.transpose(leiden_12port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "leiden_12port_crossing", groupNames, labelNames, np.transpose(leiden_12port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "leiden_12port_bending", groupNames, labelNames, np.transpose(leiden_12port_bending), colors_6)
+  
+  plot_group_bar_chart("vertex", "length", "girvan_4port_length", groupNames, labelNames, np.transpose(girvan_4port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "girvan_4port_crossing", groupNames, labelNames, np.transpose(girvan_4port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "girvan_4port_bending", groupNames, labelNames, np.transpose(girvan_4port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "girvan_8port_length", groupNames, labelNames, np.transpose(girvan_8port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "girvan_8port_crossing", groupNames, labelNames, np.transpose(girvan_8port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "girvan_8port_bending", groupNames, labelNames, np.transpose(girvan_8port_bending), colors_6)
+  plot_group_bar_chart("vertex", "length", "girvan_12port_length", groupNames, labelNames, np.transpose(girvan_12port_length), colors_6)
+  plot_group_bar_chart("vertex", "crossing", "girvan_12port_crossing", groupNames, labelNames, np.transpose(girvan_12port_crossing), colors_6)
+  plot_group_bar_chart("vertex", "bending", "girvan_12port_bending", groupNames, labelNames, np.transpose(girvan_12port_bending), colors_6)
+
+draw_algorithm_port("", "", data)
+
 
 # (3) 
 ## Xticks: algorithm
@@ -653,4 +1287,4 @@ def draw_algorithm_layout(algorithm, layout, data):
   plot_group_bar_chart("PortNum", "crossing", "girvan_globalmin_crossing", groupNames, labelNames, np.transpose(crossing_girvan_globalmin), colors_6)
   plot_group_bar_chart("PortNum", "bending", "girvan_globalmin_bending", groupNames, labelNames, np.transpose(bending_girvan_globalmin), colors_6)
   
-draw_algorithm_layout("", "", data)
+# draw_algorithm_layout("", "", data)
